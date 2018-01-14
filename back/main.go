@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	log.SetFlags(log.Llongfile | log.Ltime)
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
 
 func main() {

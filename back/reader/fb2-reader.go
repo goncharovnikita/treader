@@ -64,7 +64,7 @@ func (f FB2Reader) readBody(body []byte) (words []string, err error) {
 				// if symbol is a character
 				if v == byte(60) {
 					tagStart = true
-				} else if v > 32 {
+				} else if v > 64 && v < 91 || v > 96 && v < 123 {
 					word += string(v)
 				} else {
 					words = append(words, word)
@@ -74,7 +74,7 @@ func (f FB2Reader) readBody(body []byte) (words []string, err error) {
 			} else {
 				if v == byte(60) {
 					tagStart = true
-				} else if v > 32 {
+				} else if v > 64 && v < 91 || v > 96 && v < 123 {
 					wordStart = true
 					word += string(v)
 				}

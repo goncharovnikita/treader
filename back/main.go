@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+
+	"./server"
 )
 
 func init() {
@@ -9,11 +11,7 @@ func init() {
 }
 
 func main() {
-	// s := server.Server
+	s := server.Server
 
-	// s.Start()
-
-	var r fileReader
-
-	r.ReadBook("test_books/The_Murder_of_Roger_Ackroyd-Agatha_Christie.fb2")
+	s.Start()
 }

@@ -5,6 +5,9 @@ import (
 	"os"
 )
 
+// Cache variable
+var Cache cache
+
 // cache type
 type cache struct{}
 

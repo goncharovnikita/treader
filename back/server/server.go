@@ -29,5 +29,7 @@ func (s server) Start() {
 	fmt.Printf("starting http server of %s port...\n", s.port)
 	h := http.NewServeMux()
 
+	h.Handle("/new/book/", newBookHandler())
+
 	log.Fatal(http.ListenAndServe(s.port, h))
 }

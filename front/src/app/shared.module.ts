@@ -1,11 +1,13 @@
 import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
 
 import 'rxjs/add/operator/map';
 
 @NgModule({
   exports: [
-    CommonModule
+    CommonModule,
+    HttpClientModule
   ]
 })
 export class SharedModule {

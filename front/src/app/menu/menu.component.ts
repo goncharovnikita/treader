@@ -1,5 +1,5 @@
 import { AppService } from './../app.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 @Component({
@@ -9,10 +9,16 @@ import { Observable } from 'rxjs/Observable';
 })
 export class MenuComponent implements OnInit {
   books: Observable<Array<Book>>;
+  @ViewChild('fileInput') fileInputRef: ElementRef;
   constructor(private $s: AppService) { }
 
   ngOnInit() {
     this.books = this.$s.books;
+  }
+
+  onFileChange() {
+    this.$s.addNewBook(this.fileInputRef.nativeElement.files[0])
+      .subscribe(console.log);
   }
 
 }

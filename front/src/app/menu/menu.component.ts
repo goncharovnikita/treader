@@ -1,4 +1,6 @@
+import { AppService } from './../app.service';
 import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
   selector: 'app-menu',
@@ -6,10 +8,11 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./menu.component.sass']
 })
 export class MenuComponent implements OnInit {
-
-  constructor() { }
+  books: Observable<Array<Book>>;
+  constructor(private $s: AppService) { }
 
   ngOnInit() {
+    this.books = this.$s.books;
   }
 
 }

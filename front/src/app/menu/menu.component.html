@@ -1,0 +1,13 @@
+<div class="menu">
+  <div class="add_new">
+    <p>Добавить книгу</p>
+  </div>
+  <div class="list">
+    <p>Список книг</p>
+    <ng-container *ngFor="let b of books | async">
+      <div class="book">
+        {{ b.autor }}
+      </div>
+    </ng-container>
+  </div>
+</div>

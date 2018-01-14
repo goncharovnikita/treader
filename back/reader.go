@@ -18,10 +18,11 @@ type fileReader struct{}
 
 func (r fileReader) ReadBook(path string) {
 	var (
-		err   error
-		file  *os.File
-		words []string
-		rdr   reader.BookReader
+		err      error
+		file     *os.File
+		words    []string
+		rdr      reader.BookReader
+		bookInfo reader.BookInfo
 	)
 
 	extension := getFileExtension(path)
@@ -45,7 +46,7 @@ func (r fileReader) ReadBook(path string) {
 		log.Fatalf("unsupported format: %s\n", extension)
 	}
 
-	if words, err = rdr.ReadBook(buf.Bytes()); err != nil {
+	if words, bookInfo, err = rdr.ReadBook(buf.Bytes()); err != nil {
 		log.Fatal(err)
 	}
 
@@ -53,6 +54,8 @@ func (r fileReader) ReadBook(path string) {
 
 	fmt.Printf("%d unique words\n", len(uniqueWords))
 	fmt.Printf("starting translate book %s...\n", path)
+	fmt.Println(bookInfo.Author)
+	fmt.Println(bookInfo.Genre)
 
 	var t translate.ENRUTranslator
 

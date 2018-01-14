@@ -36,6 +36,9 @@ type translateResponse []interface{}
 
 // Translate implementation
 func (t ENRUTranslator) Translate(word string) (result string, err error) {
+	if _, exists := Dictionary.Words[word]; exists {
+		return Dictionary.Words[word], nil
+	}
 	var (
 		body      []byte
 		response  *http.Response
@@ -64,6 +67,8 @@ func (t ENRUTranslator) Translate(word string) (result string, err error) {
 	tResponse = tResponse[0].([]interface{})
 
 	result, _ = tResponse[0].(string)
+
+	err = Dictionary.Add(word, result)
 
 	return
 }

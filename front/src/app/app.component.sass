@@ -1,0 +1,21 @@
+.layout
+  height: 100%
+  width: 100%
+  display: grid
+  grid-template-areas: "header" "menu" "content"
+  grid-template-rows: 5% 95%
+
+.header
+  grid-area: header
+
+.menu
+  grid-area: menu
+
+.content
+  grid-area: content
+
+@media screen and (min-width: 600px)
+  .layout
+    display: grid
+    grid-template-areas: "header header" "menu content"
+    grid-template-columns: 20% 80%

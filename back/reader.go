@@ -5,8 +5,12 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
-	reader "./reader"
+	"gopkg.in/cheggaaa/pb.v1"
+
+	"./reader"
+	"./translate"
 )
 
 // read books
@@ -45,6 +49,21 @@ func (r fileReader) ReadBook(path string) {
 		log.Fatal(err)
 	}
 
-	fmt.Println(words[:5])
+	uniqueWords := getUniqueWords(words)
+
+	fmt.Printf("%d unique words\n", len(uniqueWords))
+	fmt.Printf("starting translate book %s...\n", path)
+
+	var t translate.ENRUTranslator
+
+	bar := pb.StartNew(len(uniqueWords))
+	for _, v := range uniqueWords {
+		if _, e := t.Translate(v); e != nil {
+			log.Fatal(e)
+		}
+		bar.Increment()
+		time.Sleep(time.Millisecond)
+	}
+	bar.FinishPrint("Successfully read book!")
 
 }

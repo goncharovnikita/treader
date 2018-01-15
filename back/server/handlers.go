@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -9,6 +10,11 @@ import (
 
 	"../reader"
 )
+
+// new book response type
+type newBookResponse struct {
+	Book reader.BookInfo `json:"book"`
+}
 
 // handle new book
 func newBookHandler() http.Handler {
@@ -27,8 +33,8 @@ func newBookHandler() http.Handler {
 				bookInfo reader.BookInfo
 				data     []byte
 				err      error
-				// words    []string
-				rdr reader.FB2Reader
+				response []byte
+				rdr      reader.FB2Reader
 			)
 
 			defer r.Body.Close()
@@ -47,10 +53,14 @@ func newBookHandler() http.Handler {
 				return
 			}
 
-			fmt.Println(bookInfo.Author)
-			fmt.Println(bookInfo.Genre)
+			if response, err = json.Marshal(newBookResponse{Book: bookInfo}); err != nil {
+				log.Println(err)
+				rw.WriteHeader(500)
+				fmt.Printf("%s %s %d %s\n", r.URL, r.Method, 500, time.Since(start))
+				return
+			}
 
-			rw.WriteHeader(http.StatusNoContent)
+			rw.Write(response)
 			fmt.Printf("%s %s %d %s\n", r.URL, r.Method, 204, time.Since(start))
 			return
 		} else {

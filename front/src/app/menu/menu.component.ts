@@ -13,12 +13,22 @@ export class MenuComponent implements OnInit {
   constructor(private $s: AppService) { }
 
   ngOnInit() {
-    this.books = this.$s.books;
+    this.books = this.$s.fetchBooks();
   }
 
   onFileChange() {
     this.$s.addNewBook(this.fileInputRef.nativeElement.files[0])
-      .subscribe(console.log);
+      .subscribe((r: {book: Book}) => {
+        console.log(r);
+        if (r.book) {
+          this.$s.setBooks(r.book);
+          this.fileInputRef.nativeElement.value = '';
+        }
+      });
+  }
+
+  selectBook(b: Book) {
+    this.$s.selectBook(b);
   }
 
 }

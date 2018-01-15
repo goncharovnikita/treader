@@ -1,6 +1,7 @@
 declare type Book = {
-  autor: string;
+  author: string;
   pagesNum: number;
   lastPageNum: number;
-  content: string;
+  content: string[];
+  genre: string;
 }

@@ -8,7 +8,7 @@ export class AppService {
   menuExpanded = new BehaviorSubject(false);
   books = new BehaviorSubject(JSON.parse(localStorage.getItem(this.BOOKS_STORAGE)));
 
-  private readonly NEW_BOOK_URL = 'http://127.0.0.1:8080/new/book';
+  private readonly NEW_BOOK_URL = 'http://127.0.0.1:8080/new/book/';
   constructor(private $h: HttpClient) {}
 
   addNewBook(body: {}) {

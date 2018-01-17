@@ -32,6 +32,10 @@ export class ReaderComponent implements OnInit {
     this.addWindowListener();
   }
 
+  translate(w: string) {
+    return this.$s.translate(w);
+  }
+
   subscriptions() {
     this.currentPage.subscribe(v => {
       this.currentPageValue.next(this.pages.getValue()[v]);
@@ -50,7 +54,12 @@ export class ReaderComponent implements OnInit {
     Observable.fromEvent(this.contentRef.nativeElement, 'click').subscribe(() => {
       const w = this.getClickedWord();
       console.log(w);
-      this.replaceSelectedText('test');
+      this.translate(w).subscribe(r => {
+        if (r['result']) {
+          this.replaceSelectedText(`${r['result']} `);
+        }
+      });
+      // this.replaceSelectedText('test ');
     });
   }
 
@@ -62,11 +71,13 @@ export class ReaderComponent implements OnInit {
       range.setStart(node, (range.startOffset - 1));
     }
     range.setStart(node, range.startOffset + 1);
+  rangesetter:
     do {
       try {
         range.setEnd(node, range.endOffset + 1);
       } catch (e) {
         range.setEnd(node, range.endOffset - 1);
+        break rangesetter;
       }
     } while (range.toString().indexOf(' ') === -1 && range.toString().trim() !== '');
     const str = range.toString().trim();

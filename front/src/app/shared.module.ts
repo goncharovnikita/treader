@@ -6,6 +6,8 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/fromEvent';
+import 'rxjs/add/operator/throttleTime';
+import 'rxjs/add/operator/debounceTime';
 
 @NgModule({
   exports: [

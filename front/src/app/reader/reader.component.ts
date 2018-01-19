@@ -17,6 +17,9 @@ export class ReaderComponent implements OnInit {
   totalPagesCount = 0;
   pHeight = 18;
   numbersOfParagraphsPerPage: number;
+  /**
+   * Constructor
+   */
   constructor(
     private $s: ReaderService
   ) {}
@@ -26,20 +29,33 @@ export class ReaderComponent implements OnInit {
       if (!b) { return; }
       b.content = b.content.filter(v => v !== '');
       this.pages.next(this.caclulatePageContent());
-      this.totalPagesCount = this.pages.getValue().length;
-      this.subscriptions();
     });
-    this.addWindowListener();
+    this.subscriptions();
   }
 
   translate(w: string) {
     return this.$s.translate(w);
   }
 
+  /**
+   * Subscribe on various events
+   */
   subscriptions() {
     this.currentPage.subscribe(v => {
       this.currentPageValue.next(this.pages.getValue()[v]);
     });
+
+    this.pages.subscribe(p => {
+      this.totalPagesCount = p.length;
+      this.currentPageValue.next(this.pages.getValue()[this.currentPage.getValue()]);
+    });
+
+    Observable.fromEvent(window, 'resize')
+      .debounceTime(200).subscribe(e => {
+        this.pages.next(this.caclulatePageContent());
+      });
+
+    // this.addWindowListener();
   }
 
   splitWords(t: string) {
@@ -56,7 +72,7 @@ export class ReaderComponent implements OnInit {
       console.log(w);
       this.translate(w).subscribe(r => {
         if (r['result']) {
-          this.replaceSelectedText(`${r['result']} `);
+          this.replaceSelectedText(`${r['result']}`);
         }
       });
       // this.replaceSelectedText('test ');
@@ -67,16 +83,22 @@ export class ReaderComponent implements OnInit {
     const s = window.getSelection();
     const range = s.getRangeAt(0);
     const node = s.anchorNode;
+  rangesetter:
     while (range.toString().indexOf(' ') !== 0) {
-      range.setStart(node, (range.startOffset - 1));
+      try {
+        range.setStart(node, (range.startOffset - 1));
+      } catch (e) {
+        range.setStart(node, (range.startOffset));
+        break rangesetter;
+      }
     }
-    range.setStart(node, range.startOffset + 1);
+    range.setStart(node, range.startOffset);
   rangesetter:
     do {
       try {
         range.setEnd(node, range.endOffset + 1);
       } catch (e) {
-        range.setEnd(node, range.endOffset - 1);
+        range.setEnd(node, range.endOffset);
         break rangesetter;
       }
     } while (range.toString().indexOf(' ') === -1 && range.toString().trim() !== '');

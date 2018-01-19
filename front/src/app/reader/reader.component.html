@@ -1,7 +1,7 @@
 <div class="layout">
   <div class="header">
     <h3>{{ (book | async)?.author }}</h3>
-    <h4>Current page: {{ currentPage | async }}/{{ totalPagesCount }}</h4>
+    <h4>Current page: {{ (currentPage | async) + 1 }}/{{ totalPagesCount }}</h4>
   </div>
   <div class="content" #contentEl >
     <ng-container *ngFor="let w of (currentPageValue | async)">

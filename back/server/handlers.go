@@ -14,7 +14,8 @@ import (
 
 // new book response type
 type newBookResponse struct {
-	Book reader.BookInfo `json:"book"`
+	Info    reader.BookInfo `json:"book"`
+	Content []string        `json:"content"`
 }
 
 // translate word response type
@@ -37,6 +38,7 @@ func newBookHandler() http.Handler {
 		} else if r.Method == http.MethodPost {
 			var (
 				bookInfo reader.BookInfo
+				content  []string
 				data     []byte
 				err      error
 				response []byte
@@ -52,14 +54,14 @@ func newBookHandler() http.Handler {
 				return
 			}
 
-			if _, bookInfo, err = rdr.ReadBook(data); err != nil {
+			if _, bookInfo, content, err = rdr.ReadBook(data); err != nil {
 				log.Println(err)
 				rw.WriteHeader(500)
 				fmt.Printf("%s %s %d %s\n", r.URL, r.Method, 500, time.Since(start))
 				return
 			}
 
-			if response, err = json.Marshal(newBookResponse{Book: bookInfo}); err != nil {
+			if response, err = json.Marshal(newBookResponse{Info: bookInfo, Content: content}); err != nil {
 				log.Println(err)
 				rw.WriteHeader(500)
 				fmt.Printf("%s %s %d %s\n", r.URL, r.Method, 500, time.Since(start))

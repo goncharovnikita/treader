@@ -46,7 +46,7 @@ func (r fileReader) ReadBook(path string) {
 		log.Fatalf("unsupported format: %s\n", extension)
 	}
 
-	if words, bookInfo, err = rdr.ReadBook(buf.Bytes()); err != nil {
+	if words, bookInfo, _, err = rdr.ReadBook(buf.Bytes()); err != nil {
 		log.Fatal(err)
 	}
 

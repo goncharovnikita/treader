@@ -3,6 +3,7 @@
 package reader
 
 import (
+	"encoding/xml"
 	"fmt"
 	"strings"
 )
@@ -12,7 +13,7 @@ import (
 type FB2Reader struct{}
 
 // ReadBook implementation
-func (f FB2Reader) ReadBook(data []byte) (words []string, bookInfo BookInfo, err error) {
+func (f FB2Reader) ReadBook(data []byte) (words []string, bookInfo BookInfo, content []string, err error) {
 	fmt.Printf("fb2 reader starts read %d bytes of data...\n", len(data))
 	lines := 0
 	tagOpened := false
@@ -62,7 +63,7 @@ func (f FB2Reader) ReadBook(data []byte) (words []string, bookInfo BookInfo, err
 		return
 	}
 
-	bookInfo.Content = strings.Split(string(data[bodyStartIndex:bodyEndIndex]), "\n")
+	content = strings.Split(string(data[bodyStartIndex:bodyEndIndex]), "\n")
 
 	fmt.Printf("file contains %d lines, %d words\n", lines, len(words))
 	fmt.Printf("body starts at index %d, ends at index %d\n", bodyStartIndex, bodyEndIndex)
@@ -114,6 +115,22 @@ func (f FB2Reader) parseBookInfo(desc []byte) (bookInfo BookInfo, err error) {
 	}
 	return
 }
+
+// parse raw xml and returns
+func (f FB2Reader) parseRawXML(data []byte) (result interface{}, err error) {
+	if err = xml.Unmarshal(data, &result); err != nil {
+		return
+	}
+
+	return
+}
+
+// get book info from interface
+// func (f FB2Reader) getBookInfo(data interface{}) (result BookInfo, err error) {
+// 	for _, v := range data {
+
+// 	}
+// }
 
 // read body of .fb2 file
 func (f FB2Reader) readBody(body []byte) (words []string, err error) {

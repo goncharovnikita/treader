@@ -1,7 +1,6 @@
 <div class="layout">
   <div class="header">
     <h3>{{ (book | async)?.author }}</h3>
-    <h4>Current page: {{ (currentPage | async) + 1 }}/{{ totalPagesCount }}</h4>
   </div>
   <div class="content" #contentEl >
     <ng-container *ngFor="let w of (currentPageValue | async)">
@@ -11,11 +10,14 @@
     </ng-container>
   </div>
   <div class="nav">
-    <div>
-      <mat-icon (click)="previousPage()">code</mat-icon>
+    <div class="prev">
+      <mat-icon class="pointer" *ngIf="hasPrev()" (click)="previousPage()">navigate_before</mat-icon>
     </div>
-    <div>
-      <mat-icon (click)="nextPage()">fingerprint</mat-icon>
+    <div class="total">
+      <h4>Current page: {{ (currentPage | async) + 1 }}/{{ totalPagesCount }}</h4>
+    </div>
+    <div class="next">
+      <mat-icon class="pointer" *ngIf="hasNext()" (click)="nextPage()">navigate_next</mat-icon>
     </div>
   </div>
 </div>

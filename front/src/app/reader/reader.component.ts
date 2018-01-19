@@ -79,6 +79,14 @@ export class ReaderComponent implements OnInit {
     });
   }
 
+  hasNext(): boolean {
+    return this.currentPage.getValue() < this.totalPagesCount;
+  }
+
+  hasPrev(): boolean {
+    return this.currentPage.getValue() > 0;
+  }
+
   getClickedWord(): string {
     const s = window.getSelection();
     const range = s.getRangeAt(0);
@@ -125,13 +133,13 @@ export class ReaderComponent implements OnInit {
   }
 
   nextPage() {
-    if (this.totalPagesCount > this.currentPage.getValue()) {
+    if (this.hasNext()) {
       this.currentPage.next(this.currentPage.getValue() + 1);
     }
   }
 
   previousPage() {
-    if (this.currentPage.getValue() > 0) {
+    if (this.hasPrev()) {
       this.currentPage.next(this.currentPage.getValue() - 1);
     }
   }

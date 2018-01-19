@@ -1,3 +1,5 @@
+@import '~variables.sass'
+
 .layout
   display: grid
   grid-template-areas: "header" "content" "nav"
@@ -14,4 +16,17 @@
 
 .nav
   grid-area: nav
-  display: flex
+  background-color: $mainColor
+  display: grid
+  grid-template-areas: "prev total next"
+  align-items: center
+  justify-items: center
+
+.prev
+  grid-area: prev
+
+.total
+  grid-area: total
+
+.next
+  grid-area: next

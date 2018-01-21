@@ -62,6 +62,7 @@ export class ReaderComponent implements OnInit {
     });
 
     this.pages.subscribe(p => {
+      console.log(p)
       this.totalPagesCount = p.length;
       this.currentPageValue.next(this.pages.getValue()[this.currentPage.getValue()]);
     });
@@ -98,7 +99,7 @@ export class ReaderComponent implements OnInit {
   }
 
   hasNext(): boolean {
-    return this.currentPage.getValue() < this.totalPagesCount;
+    return this.currentPage.getValue() < this.totalPagesCount - 1;
   }
 
   hasPrev(): boolean {
@@ -168,17 +169,21 @@ export class ReaderComponent implements OnInit {
     const charWidth = 10;
     const width = this.contentRef.nativeElement.clientWidth;
     const pHeight = 18;
-    for (const i of this.getFlatContent(this.book.getValue().Body.Sections)) {
-      const p = i.replace(/<\/?\w+>/g, '');
+    let remainingArray = this.getFlatContent(this.book.getValue().Body.Sections);
+    while (remainingArray.length > 0) {
+      const item = remainingArray[0];
+      const p = item.replace(/<\/?\w+>/g, '');
       restHeight -= (Math.floor(((p.length * charWidth) / width)) + 1) * pHeight;
       if (restHeight > 0) {
-        currPage.push(i);
+        currPage.push(item);
+        remainingArray = remainingArray.slice(1);
       } else {
         result.push(currPage);
         currPage = [];
         restHeight = this.contentRef.nativeElement.clientHeight;
       }
     }
+    if (currPage.length > 0) { result.push(currPage); }
     return result;
   }
 

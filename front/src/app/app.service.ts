@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
@@ -11,11 +11,14 @@ export class AppService {
   private selectedBook = new BehaviorSubject(JSON.parse(localStorage.getItem(this.SELECTED_BOOK)));
   menuExpanded = new BehaviorSubject(false);
 
-  private readonly NEW_BOOK_URL = 'http://127.0.0.1:8080/new/book/';
-  constructor(private $h: HttpClient) {}
+  private readonly NEW_BOOK_URL = '/new/book/';
+  constructor(
+    private $h: HttpClient,
+    @Inject('BASE_URL') private $url: string
+  ) {}
 
   addNewBook(body: {}) {
-    return this.$h.post(this.NEW_BOOK_URL, body)
+    return this.$h.post(this.$url + this.NEW_BOOK_URL, body)
       .catch(() => Observable.of(null));
   }
 

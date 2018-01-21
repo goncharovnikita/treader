@@ -13,7 +13,7 @@ export class MenuComponent implements OnInit {
   constructor(private $s: AppService) { }
 
   ngOnInit() {
-    this.books = this.$s.fetchBooks();
+    this.books = this.$s.fetchBooks().map(b => b ? Object.values(b) : b);
   }
 
   onFileChange() {

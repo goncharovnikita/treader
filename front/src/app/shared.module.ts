@@ -10,6 +10,7 @@ import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/operator/throttleTime';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/observable/timer';
 import { TranslateService } from './translate/service';
 
 @NgModule({

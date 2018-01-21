@@ -15,22 +15,23 @@ declare type Book = {
 			Translator: AuthorType
 			Sequence:   string    
     }
-  }
-  DocumentInfo: {
-    Author:      AuthorType[]
-    ProgramUsed: string      
-    Date:        string      
-    SrcURL:      string[]
-    SrcOcr:      string      
-    ID:          string      
-    Version:     number     
-    History:     string      
+    DocumentInfo: {
+      Author:      AuthorType[]
+      ProgramUsed: string      
+      Date:        string      
+      SrcURL:      string[]
+      SrcOcr:      string      
+      ID:          string      
+      Version:     number     
+      History:     string      
+    }
   }
   Body: {
     Sections: {
       P: string[]
     }[]
   }
+  LastPageNumber: number;
 }
 
 declare type AuthorType = {

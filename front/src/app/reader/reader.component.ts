@@ -28,10 +28,22 @@ export class ReaderComponent implements OnInit {
     return this.book.getValue().Description.TitleInfo.BookTitle;
   }
 
+  get author(): string {
+    const aPath = this.book.getValue().Description.DocumentInfo.Author[0];
+    const firstName  = aPath.FirstName ? aPath.FirstName : '';
+    const middleName = aPath.MiddleName ? aPath.MiddleName : '';
+    const lastName   = aPath.LastName ? aPath.LastName : '';
+    if (!aPath) { return ''; }
+    return `${firstName} ${middleName} ${lastName}`;
+  }
+
   ngOnInit() {
     this.book.subscribe(b => {
       if (!b) { return; }
       this.pages.next(this.caclulatePageContent());
+      if (this.book.getValue().LastPageNumber) {
+        this.currentPage.next(this.book.getValue().LastPageNumber);
+      }
     });
     this.subscriptions();
   }
@@ -45,6 +57,7 @@ export class ReaderComponent implements OnInit {
    */
   subscriptions() {
     this.currentPage.subscribe(v => {
+      this.$s.updateBook(Object.assign(this.book.getValue(), {LastPageNumber: v}));
       this.currentPageValue.next(this.pages.getValue()[v]);
     });
 
@@ -57,6 +70,11 @@ export class ReaderComponent implements OnInit {
       .debounceTime(200).subscribe(e => {
         this.pages.next(this.caclulatePageContent());
       });
+
+    this.$s.triggerRefetchBookData.subscribe(v => {
+      console.log(v);
+      Observable.timer(50).subscribe(_ => this.pages.next(this.caclulatePageContent()));
+    });
 
     this.addWindowListener();
   }
@@ -98,7 +116,6 @@ export class ReaderComponent implements OnInit {
       try {
         range.setStart(node, (range.startOffset - 1));
       } catch (e) {
-        // console.log(e);
         e1 = true;
         break rangesetter;
       }
@@ -109,7 +126,6 @@ export class ReaderComponent implements OnInit {
       try {
         range.setEnd(node, range.endOffset + 1);
       } catch (e) {
-        // console.log(e);
         e2 = true;
         break rangesetter;
       }
@@ -117,14 +133,12 @@ export class ReaderComponent implements OnInit {
     if (!e2) {
       range.setEnd(node, range.endOffset - 1);
     } else {
-      // range.setEnd(node, range.endOffset - 2);
     }
     return range;
   }
 
   getClickedWord(): string {
     const str = this.getClickedRange().toString().trim();
-    // s.removeRange(range);
     return str;
   }
 

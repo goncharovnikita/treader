@@ -1,6 +1,7 @@
 <div class="layout">
   <div class="header">
-    <h3>{{ bookTitle }}</h3>
+    <h3 class="title">{{ bookTitle }}</h3>
+    <h4 class="creds">{{ author }}</h4>
   </div>
   <div class="content" #contentEl >
     <ng-container *ngFor="let w of (currentPageValue | async)">

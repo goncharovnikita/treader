@@ -1,5 +1,9 @@
 matrix:
   include:
-    - script: back/deploy-docker.sh
+    - if: branch =~ back
+    
+      script: back/deploy-docker.sh
 
-    - script: front/deploy-docker.sh
+    - if: branch =~ front
+    
+      script: front/deploy-docker.sh

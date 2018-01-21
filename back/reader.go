@@ -7,6 +7,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/centrypoint/fb2"
+
 	"gopkg.in/cheggaaa/pb.v1"
 
 	"./reader"
@@ -22,7 +24,7 @@ func (r fileReader) ReadBook(path string) {
 		file     *os.File
 		words    []string
 		rdr      reader.BookReader
-		bookInfo reader.BookInfo
+		bookInfo fb2.FB2
 	)
 
 	extension := getFileExtension(path)
@@ -46,16 +48,14 @@ func (r fileReader) ReadBook(path string) {
 		log.Fatalf("unsupported format: %s\n", extension)
 	}
 
-	if words, bookInfo, _, err = rdr.ReadBook(buf.Bytes()); err != nil {
+	if words, bookInfo, err = rdr.ReadBook(buf.Bytes()); err != nil {
 		log.Fatal(err)
 	}
 
 	uniqueWords := getUniqueWords(words)
 
 	fmt.Printf("%d unique words\n", len(uniqueWords))
-	fmt.Printf("starting translate book %s...\n", path)
-	fmt.Println(bookInfo.Author)
-	fmt.Println(bookInfo.Genre)
+	fmt.Printf("starting translate book %s...\n", bookInfo.Description.TitleInfo.BookTitle)
 
 	var t translate.ENRUTranslator
 

@@ -30,7 +30,7 @@ func (s server) Start() {
 	h := http.NewServeMux()
 
 	h.Handle("/new/book/", newBookHandler())
-	h.Handle("/translate/", translateWordHandler())
+	h.Handle("/translate", translateWordHandler())
 
 	log.Fatal(http.ListenAndServe(s.port, h))
 }

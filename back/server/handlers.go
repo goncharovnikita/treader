@@ -8,14 +8,15 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/centrypoint/fb2"
+
 	"../reader"
 	"../translate"
 )
 
 // new book response type
 type newBookResponse struct {
-	Info    reader.BookInfo `json:"book"`
-	Content []string        `json:"content"`
+	Book fb2.FB2 `json:"book"`
 }
 
 // translate word response type
@@ -37,8 +38,7 @@ func newBookHandler() http.Handler {
 			fmt.Printf("%s %s %d %s\n", r.URL, r.Method, 204, time.Since(start))
 		} else if r.Method == http.MethodPost {
 			var (
-				bookInfo reader.BookInfo
-				content  []string
+				bookInfo fb2.FB2
 				data     []byte
 				err      error
 				response []byte
@@ -54,14 +54,14 @@ func newBookHandler() http.Handler {
 				return
 			}
 
-			if _, bookInfo, content, err = rdr.ReadBook(data); err != nil {
+			if _, bookInfo, err = rdr.ReadBook(data); err != nil {
 				log.Println(err)
 				rw.WriteHeader(500)
 				fmt.Printf("%s %s %d %s\n", r.URL, r.Method, 500, time.Since(start))
 				return
 			}
 
-			if response, err = json.Marshal(newBookResponse{Info: bookInfo, Content: content}); err != nil {
+			if response, err = json.Marshal(newBookResponse{Book: bookInfo}); err != nil {
 				log.Println(err)
 				rw.WriteHeader(500)
 				fmt.Printf("%s %s %d %s\n", r.URL, r.Method, 500, time.Since(start))
@@ -91,8 +91,6 @@ func translateWordHandler() http.Handler {
 		)
 
 		query := r.URL.Query().Get("query")
-
-		fmt.Printf("%+v\n", r)
 
 		if len(query) < 1 {
 			rw.WriteHeader(http.StatusNoContent)

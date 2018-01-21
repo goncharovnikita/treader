@@ -5,7 +5,8 @@ package reader
 import (
 	"encoding/xml"
 	"fmt"
-	"strings"
+
+	"github.com/centrypoint/fb2"
 )
 
 // FB2Reader implements BookReader
@@ -13,16 +14,15 @@ import (
 type FB2Reader struct{}
 
 // ReadBook implementation
-func (f FB2Reader) ReadBook(data []byte) (words []string, bookInfo BookInfo, content []string, err error) {
+func (f FB2Reader) ReadBook(data []byte) (words []string, bookInfo fb2.FB2, err error) {
 	fmt.Printf("fb2 reader starts read %d bytes of data...\n", len(data))
+	var fb2Reader = fb2.New(data)
 	lines := 0
 	tagOpened := false
 	tagName := ""
 	tags := []string{}
 	bodyStartIndex := 0
 	bodyEndIndex := 0
-	descriptionStartIndex := 0
-	descriptionEndIndex := 0
 	for i, v := range data {
 		if !tagOpened {
 			if v == byte(60) {
@@ -36,12 +36,6 @@ func (f FB2Reader) ReadBook(data []byte) (words []string, bookInfo BookInfo, con
 					break
 				case "/body":
 					bodyEndIndex = i - 7
-					break
-				case "description":
-					descriptionStartIndex = i + 1
-					break
-				case "/description":
-					descriptionEndIndex = i - 13
 					break
 				}
 				tagOpened = false
@@ -59,11 +53,9 @@ func (f FB2Reader) ReadBook(data []byte) (words []string, bookInfo BookInfo, con
 		return
 	}
 
-	if bookInfo, err = f.parseBookInfo(data[descriptionStartIndex:descriptionEndIndex]); err != nil {
+	if bookInfo, err = fb2Reader.Unmarshall(); err != nil {
 		return
 	}
-
-	content = strings.Split(string(data[bodyStartIndex:bodyEndIndex]), "\n")
 
 	fmt.Printf("file contains %d lines, %d words\n", lines, len(words))
 	fmt.Printf("body starts at index %d, ends at index %d\n", bodyStartIndex, bodyEndIndex)
@@ -72,49 +64,49 @@ func (f FB2Reader) ReadBook(data []byte) (words []string, bookInfo BookInfo, con
 }
 
 // parse book info
-func (f FB2Reader) parseBookInfo(desc []byte) (bookInfo BookInfo, err error) {
-	tagStart := false
-	tag := ""
-	genreStartIndex := 0
-	genreEndIndex := 0
-	authorStartIndex := 0
-	authorEndIndex := 0
-	for i, v := range desc {
-		if tagStart {
-			if v == byte(62) {
-				tagStart = false
-				switch tag {
-				case "genre":
-					genreStartIndex = i + 1
-					break
-				case "author":
-					authorStartIndex = i + 1
-					break
-				case "/genre":
-					genreEndIndex = i - 7
-					break
-				case "/author":
-					authorEndIndex = i - 8
-					break
-				}
-				tag = ""
-			} else {
-				tag += string(v)
-			}
-		} else {
-			if v == byte(60) {
-				tagStart = true
-			}
-		}
-	}
-	if authorEndIndex > 0 {
-		bookInfo.Author = string(desc[authorStartIndex:authorEndIndex])
-	}
-	if genreEndIndex > 0 {
-		bookInfo.Genre = string(desc[genreStartIndex:genreEndIndex])
-	}
-	return
-}
+// func (f FB2Reader) parseBookInfo(desc []byte) (bookInfo BookInfo, err error) {
+// 	tagStart := false
+// 	tag := ""
+// 	genreStartIndex := 0
+// 	genreEndIndex := 0
+// 	authorStartIndex := 0
+// 	authorEndIndex := 0
+// 	for i, v := range desc {
+// 		if tagStart {
+// 			if v == byte(62) {
+// 				tagStart = false
+// 				switch tag {
+// 				case "genre":
+// 					genreStartIndex = i + 1
+// 					break
+// 				case "author":
+// 					authorStartIndex = i + 1
+// 					break
+// 				case "/genre":
+// 					genreEndIndex = i - 7
+// 					break
+// 				case "/author":
+// 					authorEndIndex = i - 8
+// 					break
+// 				}
+// 				tag = ""
+// 			} else {
+// 				tag += string(v)
+// 			}
+// 		} else {
+// 			if v == byte(60) {
+// 				tagStart = true
+// 			}
+// 		}
+// 	}
+// 	if authorEndIndex > 0 {
+// 		bookInfo.Author = string(desc[authorStartIndex:authorEndIndex])
+// 	}
+// 	if genreEndIndex > 0 {
+// 		bookInfo.Genre = string(desc[genreStartIndex:genreEndIndex])
+// 	}
+// 	return
+// }
 
 // parse raw xml and returns
 func (f FB2Reader) parseRawXML(data []byte) (result interface{}, err error) {

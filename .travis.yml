@@ -1,0 +1,5 @@
+matrix:
+  include:
+    - script: back/deploy-docker.sh
+
+    - script: front/deploy-docker.sh

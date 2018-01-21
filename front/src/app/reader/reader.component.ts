@@ -24,10 +24,13 @@ export class ReaderComponent implements OnInit {
     private $s: ReaderService
   ) {}
 
+  get bookTitle(): string {
+    return this.book.getValue().Description.TitleInfo.BookTitle;
+  }
+
   ngOnInit() {
     this.book.subscribe(b => {
       if (!b) { return; }
-      b.content = b.content.filter(v => v !== '');
       this.pages.next(this.caclulatePageContent());
     });
     this.subscriptions();
@@ -55,7 +58,7 @@ export class ReaderComponent implements OnInit {
         this.pages.next(this.caclulatePageContent());
       });
 
-    // this.addWindowListener();
+    this.addWindowListener();
   }
 
   splitWords(t: string) {
@@ -67,15 +70,12 @@ export class ReaderComponent implements OnInit {
   }
 
   addWindowListener() {
-    Observable.fromEvent(this.contentRef.nativeElement, 'click').subscribe(() => {
+    Observable.fromEvent(this.contentRef.nativeElement, 'click').subscribe($e => {
       const w = this.getClickedWord();
-      console.log(w);
+      if (!w) { return; }
       this.translate(w).subscribe(r => {
-        if (r['result']) {
-          this.replaceSelectedText(`${r['result']}`);
-        }
+        this.replaceSelectedText(r);
       });
-      // this.replaceSelectedText('test ');
     });
   }
 
@@ -87,49 +87,52 @@ export class ReaderComponent implements OnInit {
     return this.currentPage.getValue() > 0;
   }
 
-  getClickedWord(): string {
+  getClickedRange(): any {
     const s = window.getSelection();
     const range = s.getRangeAt(0);
     const node = s.anchorNode;
+    let e1 = false;
+    let e2 = false;
   rangesetter:
     while (range.toString().indexOf(' ') !== 0) {
       try {
         range.setStart(node, (range.startOffset - 1));
       } catch (e) {
-        range.setStart(node, (range.startOffset));
+        // console.log(e);
+        e1 = true;
         break rangesetter;
       }
     }
-    range.setStart(node, range.startOffset);
+    if (!e1) { range.setStart(node, range.startOffset + 1); }
   rangesetter:
-    do {
+    while (range.toString().indexOf(' ') === -1 && range.toString().trim() !== '') {
       try {
         range.setEnd(node, range.endOffset + 1);
       } catch (e) {
-        range.setEnd(node, range.endOffset);
+        // console.log(e);
+        e2 = true;
         break rangesetter;
       }
-    } while (range.toString().indexOf(' ') === -1 && range.toString().trim() !== '');
-    const str = range.toString().trim();
+    }
+    if (!e2) {
+      range.setEnd(node, range.endOffset - 1);
+    } else {
+      // range.setEnd(node, range.endOffset - 2);
+    }
+    return range;
+  }
+
+  getClickedWord(): string {
+    const str = this.getClickedRange().toString().trim();
     // s.removeRange(range);
     return str;
   }
 
   replaceSelectedText(replacementText) {
-    let sel, range;
-    if (window.getSelection) {
-        sel = window.getSelection();
-        if (sel.rangeCount) {
-            range = sel.getRangeAt(0);
-            range.deleteContents();
-            range.insertNode(document.createTextNode(replacementText));
-        }
-    } else if (document['selection'] && document['selection'].createRange) {
-        range = document['selection'].createRange();
-        range.text = replacementText;
-    }
-    sel = window.getSelection();
-    sel.removeRange(range);
+    const range = this.getClickedRange();
+    range.deleteContents();
+    range.insertNode(document.createTextNode(`${replacementText}`));
+    window.getSelection().removeRange(range);
   }
 
   nextPage() {
@@ -151,7 +154,7 @@ export class ReaderComponent implements OnInit {
     const charWidth = 10;
     const width = this.contentRef.nativeElement.clientWidth;
     const pHeight = 18;
-    for (const i of this.book.getValue().content) {
+    for (const i of this.getFlatContent(this.book.getValue().Body.Sections)) {
       const p = i.replace(/<\/?\w+>/g, '');
       restHeight -= (Math.floor(((p.length * charWidth) / width)) + 1) * pHeight;
       if (restHeight > 0) {
@@ -161,6 +164,14 @@ export class ReaderComponent implements OnInit {
         currPage = [];
         restHeight = this.contentRef.nativeElement.clientHeight;
       }
+    }
+    return result;
+  }
+
+  getFlatContent(v: {P: Array<string>}[]): Array<string> {
+    const result = [];
+    for (const i of v) {
+      result.push(...i.P);
     }
     return result;
   }

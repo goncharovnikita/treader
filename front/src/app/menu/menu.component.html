@@ -7,7 +7,7 @@
     <p>Список книг</p>
     <ng-container *ngFor="let b of books | async">
       <div class="book pointer" (click)="selectBook(b)" >
-        {{ b.author }}
+        {{ b.Description.DocumentInfo.Author[0].FirstName }}
       </div>
     </ng-container>
   </div>

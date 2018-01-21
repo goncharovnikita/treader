@@ -1,6 +1,6 @@
 <div class="layout">
   <div class="header">
-    <h3>{{ (book | async)?.author }}</h3>
+    <h3>{{ bookTitle }}</h3>
   </div>
   <div class="content" #contentEl >
     <ng-container *ngFor="let w of (currentPageValue | async)">

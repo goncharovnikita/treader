@@ -7,10 +7,10 @@
       TReader
     </div>
   </div>
-  <div class="menu" [ngClass]="{'mobile-hidden': !(menuExpanded | async)}" >
+  <div class="menu" [ngClass]="{'menu-hidden': !(menuExpanded | async)}" >
     <app-menu></app-menu>
   </div>
-  <div class="content" [ngClass]="{'mobile-hidden': menuExpanded | async}" >
+  <div class="content" [ngClass]="{'content-hidden': menuExpanded | async}" >
     <app-reader [book]="selectedBook" ></app-reader>
   </div>
 </div>

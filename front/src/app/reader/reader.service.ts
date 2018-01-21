@@ -1,14 +1,15 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { TranslateService } from '../translate/service';
 
 @Injectable()
 export class ReaderService {
   constructor(
-    private $h: HttpClient
+    private $t: TranslateService
     // @Inject('BASE_URL') private url: string
   ) {}
 
   translate(w: string) {
-    return this.$h.get('http://127.0.0.1:8080/translate/?query=' + w);
+    return this.$t.translate(w);
   }
 }

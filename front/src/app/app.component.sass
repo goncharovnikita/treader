@@ -33,8 +33,14 @@
 .menu
   grid-area: menu
 
+.menu-hidden
+  display: none
+
 .content
   grid-area: content
+
+.content-hidden
+  display: none
 
 @media screen and (min-width: 600px)
   .layout
@@ -49,5 +55,8 @@
   .header
     grid-template-columns: 10% 90%
 
-  .mobile-hidden
-    // display: block
+  .menu-hidden
+    display: none
+
+  .content-hidden
+    display: block

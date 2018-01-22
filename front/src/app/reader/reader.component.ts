@@ -1,7 +1,7 @@
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { ReaderService } from './reader.service';
-import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, NgZone } from '@angular/core';
 
 @Component({
   selector: 'app-reader',
@@ -21,7 +21,8 @@ export class ReaderComponent implements OnInit {
    * Constructor
    */
   constructor(
-    private $s: ReaderService
+    private $s: ReaderService,
+    private $zone: NgZone
   ) {}
 
   get bookTitle(): string {
@@ -39,6 +40,7 @@ export class ReaderComponent implements OnInit {
 
   ngOnInit() {
     this.book.subscribe(b => {
+      console.log(b);
       if (!b) { return; }
       this.pages.next(this.caclulatePageContent());
       if (this.book.getValue().LastPageNumber) {
@@ -62,7 +64,7 @@ export class ReaderComponent implements OnInit {
     });
 
     this.pages.subscribe(p => {
-      console.log(p)
+      console.log(p);
       this.totalPagesCount = p.length;
       this.currentPageValue.next(this.pages.getValue()[this.currentPage.getValue()]);
     });
@@ -73,7 +75,7 @@ export class ReaderComponent implements OnInit {
       });
 
     this.$s.triggerRefetchBookData.subscribe(v => {
-      console.log(v);
+      // console.log(v);
       Observable.timer(50).subscribe(_ => this.pages.next(this.caclulatePageContent()));
     });
 
@@ -164,26 +166,36 @@ export class ReaderComponent implements OnInit {
 
   caclulatePageContent(): string[][] {
     let restHeight = this.contentRef.nativeElement.clientHeight;
+    if (restHeight < 1) { return [[]]; }
+    console.log('preceed');
     const result = [];
     let currPage = [];
     const charWidth = 10;
     const width = this.contentRef.nativeElement.clientWidth;
     const pHeight = 18;
+    let jumpingLimit = 10000;
     let remainingArray = this.getFlatContent(this.book.getValue().Body.Sections);
-    while (remainingArray.length > 0) {
-      const item = remainingArray[0];
-      const p = item.replace(/<\/?\w+>/g, '');
-      restHeight -= (Math.floor(((p.length * charWidth) / width)) + 1) * pHeight;
-      if (restHeight > 0) {
-        currPage.push(item);
-        remainingArray = remainingArray.slice(1);
-      } else {
-        result.push(currPage);
-        currPage = [];
-        restHeight = this.contentRef.nativeElement.clientHeight;
+    console.log(remainingArray.length);
+    this.$zone.runOutsideAngular(() => {
+      while (remainingArray.length > 0 && jumpingLimit > 0) {
+        // console.log(remainingArray)
+        // console.log(`jumping ${jumpingLimit}`)
+        const item = remainingArray[0];
+        const p = item.replace(/<\/?\w+>/g, '');
+        restHeight -= (Math.floor(((p.length * charWidth) / width)) + 1) * pHeight;
+        if (restHeight > 0) {
+          currPage.push(item);
+          remainingArray = remainingArray.slice(1);
+        } else {
+          result.push(currPage);
+          currPage = [];
+          restHeight = this.contentRef.nativeElement.clientHeight;
+        }
+        jumpingLimit--;
       }
-    }
-    if (currPage.length > 0) { result.push(currPage); }
+      if (currPage.length > 0) { result.push(currPage); }
+      this.$zone.run(() => {});
+    });
     return result;
   }
 

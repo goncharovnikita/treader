@@ -1,3 +1,4 @@
+import { RendererComponent } from './renderer/renderer.component';
 import { ReaderService } from './reader.service';
 import { ReaderComponent } from './reader.component';
 import { NgModule } from '@angular/core';
@@ -10,7 +11,8 @@ import { MaterialModule } from '../material.module';
     MaterialModule
   ],
   declarations: [
-    ReaderComponent
+    ReaderComponent,
+    RendererComponent
   ],
   exports: [
     ReaderComponent

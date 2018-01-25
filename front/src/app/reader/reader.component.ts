@@ -42,7 +42,8 @@ export class ReaderComponent implements OnInit {
     this.book.subscribe(b => {
       console.log(b);
       if (!b) { return; }
-      this.pages.next(this.caclulatePageContent());
+      // this.pages.next(this.caclulatePageContent());
+      this.pages.next(this.parseBookContent());
       if (this.book.getValue().LastPageNumber) {
         this.currentPage.next(this.book.getValue().LastPageNumber);
       }
@@ -71,12 +72,14 @@ export class ReaderComponent implements OnInit {
 
     Observable.fromEvent(window, 'resize')
       .debounceTime(200).subscribe(e => {
-        this.pages.next(this.caclulatePageContent());
+        // this.pages.next(this.caclulatePageContent());
+        this.pages.next(this.parseBookContent());
       });
 
     this.$s.triggerRefetchBookData.subscribe(v => {
       // console.log(v);
-      Observable.timer(50).subscribe(_ => this.pages.next(this.caclulatePageContent()));
+      // Observable.timer(50).subscribe(_ => this.pages.next(this.caclulatePageContent()));
+      Observable.timer(50).subscribe(_ => this.pages.next(this.parseBookContent()));
     });
 
     this.addWindowListener();
@@ -167,7 +170,6 @@ export class ReaderComponent implements OnInit {
   caclulatePageContent(): string[][] {
     let restHeight = this.contentRef.nativeElement.clientHeight;
     if (restHeight < 1) { return [[]]; }
-    console.log('preceed');
     const result = [];
     let currPage = [];
     const charWidth = 10;
@@ -196,6 +198,49 @@ export class ReaderComponent implements OnInit {
       if (currPage.length > 0) { result.push(currPage); }
       this.$zone.run(() => {});
     });
+    return result;
+  }
+
+  parseBookContent() {
+    let restHeight = this.contentRef.nativeElement.clientHeight;
+    if (restHeight < 1) { return [[]]; }
+    const result = [];
+    let currPage = [];
+    const charWidth = 10;
+    const width = this.contentRef.nativeElement.clientWidth;
+    const pHeight = 18;
+    const jumpingLimit = 10000;
+    const remainingArray = this.getFlatContent(this.book.getValue().Body.Sections);
+    for (let i = 0; i < remainingArray.length; i++) {
+      let a = width;
+      let prevSlice = 0;
+      for (let j = 0; j < remainingArray[i].length; j++) {
+        if (a === 0) {
+          currPage.push(remainingArray[i].slice(prevSlice, j));
+          prevSlice = j;
+          a = width;
+          restHeight -= pHeight;
+          if (restHeight - pHeight < 0) {
+            result.push(currPage);
+            currPage = [];
+            restHeight = this.contentRef.nativeElement.clientHeight;
+          }
+        } else {
+          a -= charWidth;
+        }
+      }
+      currPage.push(remainingArray[i].slice(prevSlice));
+      restHeight -= pHeight;
+      if (restHeight - pHeight < 0) {
+        result.push(currPage);
+        currPage = [];
+        restHeight = this.contentRef.nativeElement.clientHeight;
+      }
+    }
+    if (currPage.length > 0) {
+      result.push(currPage);
+    }
+    console.log(result);
     return result;
   }
 

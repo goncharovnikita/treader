@@ -37,6 +37,11 @@ func (d *dictionary) open() {
 	)
 
 	if file, err = os.OpenFile(d.filename, os.O_RDONLY, 0666); err != nil {
+		_, ok := err.(*os.PathError)
+		if ok {
+			d.createFile()
+			return
+		}
 		log.Fatal(err)
 	}
 
@@ -51,6 +56,23 @@ func (d *dictionary) open() {
 	}
 
 	d.Words = words
+}
+
+// create dictionary
+func (d *dictionary) createFile() {
+	var (
+		err  error
+		file *os.File
+	)
+
+	if file, err = os.OpenFile(d.filename, os.O_CREATE, 0666); err != nil {
+		log.Fatal(err)
+	}
+
+	defer file.Close()
+
+	d.Words = map[string]string{}
+
 }
 
 // Add add word to dictionary

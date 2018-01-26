@@ -1,17 +1,22 @@
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { ReaderService } from './reader.service';
-import { Component, OnInit, Input, ViewChild, ElementRef, NgZone } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, NgZone, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { uniqueChars } from './unique-chars';
+import { Subject } from 'rxjs/Subject';
 
 @Component({
   selector: 'app-reader',
   templateUrl: './reader.component.html',
   styleUrls: ['./reader.component.sass']
 })
-export class ReaderComponent implements OnInit {
+export class ReaderComponent implements OnInit, AfterViewInit {
   @Input() book: BehaviorSubject<Book>;
   @ViewChild('contentEl') contentRef: ElementRef;
+  @ViewChild('cWidthMeasureEl') cWidthMeasureEl: ElementRef;
+  uniqueChars = uniqueChars;
   currentPageValue = new BehaviorSubject([]);
+  ready = new Subject();
   currentPage = new BehaviorSubject(0);
   pages = new BehaviorSubject([[]]);
   totalPagesCount = 0;
@@ -22,7 +27,8 @@ export class ReaderComponent implements OnInit {
    */
   constructor(
     private $s: ReaderService,
-    private $zone: NgZone
+    private $zone: NgZone,
+    private $cdr: ChangeDetectorRef
   ) {}
 
   get bookTitle(): string {
@@ -39,16 +45,28 @@ export class ReaderComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.$cdr.detach();
     this.book.subscribe(b => {
       console.log(b);
       if (!b) { return; }
-      // this.pages.next(this.caclulatePageContent());
-      this.pages.next(this.parseBookContent());
       if (this.book.getValue().LastPageNumber) {
         this.currentPage.next(this.book.getValue().LastPageNumber);
       }
+      this.subscriptions();
     });
-    this.subscriptions();
+  }
+
+  ngAfterViewInit() {
+    this.pages.next(this.parseBookContent(this.getCharWidthMap()));
+    this.ready.next(true);
+  }
+
+  getCharWidthMap(): {} {
+    const result = {};
+    for (const child of this.cWidthMeasureEl.nativeElement.children) {
+      result[child.innerHTML] = child.offsetWidth + 1;
+    }
+    return result;
   }
 
   translate(w: string) {
@@ -59,30 +77,29 @@ export class ReaderComponent implements OnInit {
    * Subscribe on various events
    */
   subscriptions() {
-    this.currentPage.subscribe(v => {
-      this.$s.updateBook(Object.assign(this.book.getValue(), {LastPageNumber: v}));
-      this.currentPageValue.next(this.pages.getValue()[v]);
-    });
-
-    this.pages.subscribe(p => {
-      console.log(p);
-      this.totalPagesCount = p.length;
-      this.currentPageValue.next(this.pages.getValue()[this.currentPage.getValue()]);
-    });
-
-    Observable.fromEvent(window, 'resize')
-      .debounceTime(200).subscribe(e => {
-        // this.pages.next(this.caclulatePageContent());
-        this.pages.next(this.parseBookContent());
+    this.ready.subscribe(() => {
+      console.log('view ready');
+      this.pages.subscribe(p => {
+        this.totalPagesCount = p.length;
+        this.currentPageValue.next(this.pages.getValue()[this.currentPage.getValue()]);
+        this.$cdr.detectChanges();
       });
 
-    this.$s.triggerRefetchBookData.subscribe(v => {
-      // console.log(v);
-      // Observable.timer(50).subscribe(_ => this.pages.next(this.caclulatePageContent()));
-      Observable.timer(50).subscribe(_ => this.pages.next(this.parseBookContent()));
-    });
+      Observable.fromEvent(window, 'resize')
+        .debounceTime(200).subscribe(e => {
+          this.pages.next(this.parseBookContent(this.getCharWidthMap()));
+        });
 
-    this.addWindowListener();
+      this.$s.triggerRefetchBookData.subscribe(v => {
+        Observable.timer(50).subscribe(_ => this.pages.next(this.parseBookContent(this.getCharWidthMap())));
+      });
+
+      this.currentPage.subscribe(v => {
+        this.currentPageValue.next(this.pages.getValue()[v]);
+        this.$cdr.detectChanges();
+      });
+      this.addWindowListener();
+    });
   }
 
   splitWords(t: string) {
@@ -167,44 +184,64 @@ export class ReaderComponent implements OnInit {
     }
   }
 
-  parseBookContent() {
+  parseBookContent(charWidthMap: {}) {
     let restHeight = this.contentRef.nativeElement.clientHeight;
     if (restHeight < 1) { return [[]]; }
     const result = [];
     let currPage = [];
-    const charWidth = 10;
-    const width = this.contentRef.nativeElement.clientWidth;
+    const width = this.contentRef.nativeElement.clientWidth - 9;
+    console.log(width);
     const pHeight = 18;
-    const jumpingLimit = 10000;
     const remainingArray = this.getFlatContent(this.book.getValue().Body.Sections);
     for (let i = 0; i < remainingArray.length; i++) {
-      let a = width;
-      let prevSlice = 0;
-      for (let j = 0; j < remainingArray[i].length; j++) {
-        if (a <= 0) {
-          currPage.push(remainingArray[i].slice(prevSlice, j));
-          prevSlice = j;
-          a = width;
-          restHeight -= pHeight;
-          if (restHeight - pHeight < 0) {
-            result.push(currPage);
-            currPage = [];
-            restHeight = this.contentRef.nativeElement.clientHeight;
-          }
-        } else {
-          a -= charWidth;
-        }
-      }
-      currPage.push(remainingArray[i].slice(prevSlice));
-      restHeight -= pHeight;
-      if (restHeight - pHeight < 0) {
+    // for (let i = 0; i < 80; i++) {
+      if (restHeight - pHeight <= 0) {
         result.push(currPage);
         currPage = [];
         restHeight = this.contentRef.nativeElement.clientHeight;
       }
+      const s = remainingArray[i];
+      const w = s.split(' ');
+      let wv = width;
+      let prevIndex = 0;
+      let cutIndex = 0;
+      for (let j = 0; j < w.length; j++) {
+        const cw = w[j].split('').reduce((acc, curr) => acc + (charWidthMap[curr] ? charWidthMap[curr] : 8), 0) + 8;
+        if (cw === NaN) {
+          console.log(w[j])
+        }
+        if (wv - cw <= 4) {
+          if (restHeight - pHeight <= 0) {
+            result.push(currPage);
+            currPage = [];
+            restHeight = this.contentRef.nativeElement.clientHeight;
+          }
+          currPage.push(w.slice(prevIndex, j - 1).join(' '));
+          restHeight -= pHeight;
+          prevIndex = j;
+          cutIndex = j - 1;
+          wv = width;
+        } else {
+          wv -= cw;
+        }
+      }
+      if (restHeight - pHeight <= 0) {
+        result.push(currPage);
+        currPage = [];
+        restHeight = this.contentRef.nativeElement.clientHeight;
+      }
+      restHeight -= pHeight;
+      currPage.push(w.slice(cutIndex).join(' '));
     }
+
     if (currPage.length > 0) {
-      result.push(currPage);
+      const rest = currPage;
+      if (restHeight - pHeight <= 0) {
+        result.push(currPage);
+        currPage = [];
+        restHeight = this.contentRef.nativeElement.clientHeight;
+      }
+      result.push(rest);
     }
     return result;
   }

@@ -2,19 +2,31 @@ import { BooksService } from './../books.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { ReaderService } from './reader.service';
-import { Component, OnInit, Input, ViewChild, ElementRef, NgZone, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  ViewChild,
+  ElementRef,
+  NgZone,
+  AfterViewInit,
+  ChangeDetectorRef,
+  ChangeDetectionStrategy
+} from '@angular/core';
 import { uniqueChars } from './unique-chars';
 import { Subject } from 'rxjs/Subject';
 
 @Component({
   selector: 'app-reader',
   templateUrl: './reader.component.html',
-  styleUrls: ['./reader.component.sass']
+  styleUrls: ['./reader.component.sass'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReaderComponent implements OnInit, AfterViewInit {
   @Input() book: BehaviorSubject<Book>;
   @ViewChild('contentEl') contentRef: ElementRef;
   @ViewChild('cWidthMeasureEl') cWidthMeasureEl: ElementRef;
+  pageNumber = new BehaviorSubject(0);
   uniqueChars = uniqueChars;
   currentPageValue = new BehaviorSubject([]);
   ready = new Subject();
@@ -52,8 +64,10 @@ export class ReaderComponent implements OnInit, AfterViewInit {
     // this.$cdr.detach();
     this.book.subscribe(b => {
       if (!b) { return; }
+      this.pages.next(this.parseBookContent(this.getCharWidthMap()));
       this.currentPageValue.next(this.pages.getValue()[b.PageNumber]);
       this.$cdr.detectChanges();
+      this.$cdr.markForCheck();
       if (!this.subscribed) {
         this.subscriptions();
       }
@@ -72,24 +86,19 @@ export class ReaderComponent implements OnInit, AfterViewInit {
     return result;
   }
 
-  translate(w: string) {
-    return this.$s.translate(w);
-  }
-
   /**
    * Subscribe on various events
    */
   subscriptions() {
     this.subscribed = true;
-    console.log('subscriptions')
-    this.pages.next(this.parseBookContent(this.getCharWidthMap()));
+    console.log('subscriptions');
     this.ready.subscribe(() => {
       console.log('view ready');
       this.pages.subscribe(p => {
-        console.log(p)
-        this.$b.updateBook(Object.assign(this.book.getValue(), { TotalPages: p.length }));
-        this.currentPageValue.next(this.pages.getValue()[this.book.getValue().PageNumber]);
+        this.$b.softUpdateBook(Object.assign(this.book.getValue(), { TotalPages: p.length }));
+        // this.currentPageValue.next(this.pages.getValue()[this.book.getValue().PageNumber]);
         this.$cdr.markForCheck();
+        this.$cdr.detectChanges();
       });
 
       Observable.fromEvent(window, 'resize')
@@ -98,13 +107,9 @@ export class ReaderComponent implements OnInit, AfterViewInit {
         });
 
       this.$s.triggerRefetchBookData.subscribe(v => {
-        console.log('refetch book data')
+        console.log('refetch book data');
         Observable.timer(50).subscribe(_ => this.pages.next(this.parseBookContent(this.getCharWidthMap())));
       });
-
-      // this.currentPage.subscribe(v => {
-      // });
-      // this.addWindowListener();
     });
   }
 
@@ -112,65 +117,8 @@ export class ReaderComponent implements OnInit, AfterViewInit {
     return t.split('');
   }
 
-  wordClicked(w: string) {
-    console.log(w);
-  }
-
-  addWindowListener() {
-    Observable.fromEvent(this.contentRef.nativeElement, 'click').subscribe($e => {
-      const w = this.getClickedWord();
-      if (!w) { return; }
-      this.translate(w).subscribe(r => {
-        this.replaceSelectedText(r);
-      });
-    });
-  }
-
-  getClickedRange(): any {
-    const s = window.getSelection();
-    const range = s.getRangeAt(0);
-    const node = s.anchorNode;
-    let e1 = false;
-    let e2 = false;
-  rangesetter:
-    while (range.toString().indexOf(' ') !== 0) {
-      try {
-        range.setStart(node, (range.startOffset - 1));
-      } catch (e) {
-        e1 = true;
-        break rangesetter;
-      }
-    }
-    if (!e1) { range.setStart(node, range.startOffset + 1); }
-  rangesetter:
-    while (range.toString().indexOf(' ') === -1 && range.toString().trim() !== '') {
-      try {
-        range.setEnd(node, range.endOffset + 1);
-      } catch (e) {
-        e2 = true;
-        break rangesetter;
-      }
-    }
-    if (!e2) {
-      range.setEnd(node, range.endOffset - 1);
-    } else {
-    }
-    return range;
-  }
-
-  getClickedWord(): string {
-    const str = this.getClickedRange().toString().trim();
-    return str;
-  }
-
-  replaceSelectedText(replacementText) {
-    const range = this.getClickedRange();
-    range.deleteContents();
-    range.insertNode(document.createTextNode(`${replacementText}`));
-    window.getSelection().removeRange(range);
-  }
-
   parseBookContent(charWidthMap: {}) {
+    console.log('Parse book content');
     let restHeight = this.contentRef.nativeElement.clientHeight - 100;
     if (restHeight < 1) { return [[]]; }
     const result = [];

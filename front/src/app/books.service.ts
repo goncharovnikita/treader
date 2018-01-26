@@ -35,6 +35,19 @@ export class BooksService {
     this.triggerSelectedBookToUpdate();
   }
 
+  softUpdateBook(b: Book) {
+    const books = JSON.parse(localStorage.getItem(this.BOOKS_STORAGE));
+    const book = books[b.Description.DocumentInfo.ID];
+    if (!book) { return; }
+    if (b.TotalPages !== book.TotalPages && book.TotalPages) {
+      this.updateCurrentPage(b, book.TotalPages);
+    }
+    books[b.Description.DocumentInfo.ID] = b;
+    this.books.next(books);
+    localStorage.setItem(this.BOOKS_STORAGE, JSON.stringify(books));
+    localStorage.setItem(this.SELECTED_BOOK, JSON.stringify(b));
+  }
+
   updateCurrentPage(b: Book, totalPages: number): void {
     const newTotal = b.TotalPages;
     const diff = totalPages / newTotal;

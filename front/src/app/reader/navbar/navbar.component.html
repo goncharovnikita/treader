@@ -1,11 +1,11 @@
 <div class="nav">
   <div class="prev">
-    <mat-icon class="pointer" *ngIf="hasPrev()" (click)="previousPage()">navigate_before</mat-icon>
+    <mat-icon class="pointer" *ngIf="hasPrev() | async" (click)="previousPage()">navigate_before</mat-icon>
   </div>
   <div class="total">
     <h4>Current page: {{ (book | async)?.PageNumber + 1 }}/{{ (book | async)?.TotalPages }}</h4>
   </div>
   <div class="next">
-    <mat-icon class="pointer" *ngIf="hasNext()" (click)="nextPage()">navigate_next</mat-icon>
+    <mat-icon class="pointer" *ngIf="hasNext() | async" (click)="nextPage()">navigate_next</mat-icon>
   </div>
 </div>

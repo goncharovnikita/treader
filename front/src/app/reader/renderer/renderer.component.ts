@@ -28,5 +28,7 @@ export class RendererComponent implements OnInit {
     return this.$s.translate(w);
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    // this.sheet.subscribe(v => console.log(v));
+  }
 }

@@ -1,0 +1,5 @@
+<div class="sheet">
+  <ng-container *ngFor="let s of sheet | async">
+    <div [innerHTML]="s" ></div>
+  </ng-container>
+</div>

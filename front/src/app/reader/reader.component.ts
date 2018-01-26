@@ -206,7 +206,6 @@ export class ReaderComponent implements OnInit {
     if (currPage.length > 0) {
       result.push(currPage);
     }
-    console.log(result);
     return result;
   }
 

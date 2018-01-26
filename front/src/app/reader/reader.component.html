@@ -4,11 +4,12 @@
     <h4 class="creds">{{ author }}</h4>
   </div>
   <div class="content" #contentEl >
-    <ng-container *ngFor="let w of (currentPageValue | async)">
+    <app-reader-renderer [sheet]="currentPageValue"></app-reader-renderer>
+    <!-- <ng-container *ngFor="let w of (currentPageValue | async)">
       <div [innerHTML]="w" >
        
       </div>
-    </ng-container>
+    </ng-container> -->
   </div>
   <div class="nav">
     <div class="prev">

@@ -185,20 +185,22 @@ export class ReaderComponent implements OnInit, AfterViewInit {
   }
 
   parseBookContent(charWidthMap: {}) {
-    let restHeight = this.contentRef.nativeElement.clientHeight;
+    let restHeight = this.contentRef.nativeElement.clientHeight - 100;
     if (restHeight < 1) { return [[]]; }
     const result = [];
     let currPage = [];
     const width = this.contentRef.nativeElement.clientWidth - 9;
-    console.log(width);
-    const pHeight = 18;
+    let pHeight = 18;
+    if (this.cWidthMeasureEl.nativeElement.children[0]) {
+      pHeight = this.cWidthMeasureEl.nativeElement.children[0].offsetHeight;
+    }
     const remainingArray = this.getFlatContent(this.book.getValue().Body.Sections);
     for (let i = 0; i < remainingArray.length; i++) {
     // for (let i = 0; i < 80; i++) {
       if (restHeight - pHeight <= 0) {
         result.push(currPage);
         currPage = [];
-        restHeight = this.contentRef.nativeElement.clientHeight;
+        restHeight = this.contentRef.nativeElement.clientHeight - 100;
       }
       const s = remainingArray[i];
       const w = s.split(' ');
@@ -208,13 +210,13 @@ export class ReaderComponent implements OnInit, AfterViewInit {
       for (let j = 0; j < w.length; j++) {
         const cw = w[j].split('').reduce((acc, curr) => acc + (charWidthMap[curr] ? charWidthMap[curr] : 8), 0) + 8;
         if (cw === NaN) {
-          console.log(w[j])
+          console.log(w[j]);
         }
         if (wv - cw <= 4) {
           if (restHeight - pHeight <= 0) {
             result.push(currPage);
             currPage = [];
-            restHeight = this.contentRef.nativeElement.clientHeight;
+            restHeight = this.contentRef.nativeElement.clientHeight - 100;
           }
           currPage.push(w.slice(prevIndex, j - 1).join(' '));
           restHeight -= pHeight;
@@ -228,7 +230,7 @@ export class ReaderComponent implements OnInit, AfterViewInit {
       if (restHeight - pHeight <= 0) {
         result.push(currPage);
         currPage = [];
-        restHeight = this.contentRef.nativeElement.clientHeight;
+        restHeight = this.contentRef.nativeElement.clientHeight - 100;
       }
       restHeight -= pHeight;
       currPage.push(w.slice(cutIndex).join(' '));
@@ -239,7 +241,7 @@ export class ReaderComponent implements OnInit, AfterViewInit {
       if (restHeight - pHeight <= 0) {
         result.push(currPage);
         currPage = [];
-        restHeight = this.contentRef.nativeElement.clientHeight;
+        restHeight = this.contentRef.nativeElement.clientHeight - 100;
       }
       result.push(rest);
     }

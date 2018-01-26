@@ -1,7 +1,7 @@
 <div class="layout">
   <div class="header">
-    <h3 class="title">{{ bookTitle }}</h3>
-    <h4 class="creds">{{ author }}</h4>
+    <h3 class="title">{{ bookTitle | async }}</h3>
+    <h4 class="creds">{{ author | async }}</h4>
   </div>
   <div class="content" #contentEl >
     <app-reader-renderer [sheet]="currentPageValue"></app-reader-renderer>
@@ -11,17 +11,7 @@
       </div>
     </ng-container> -->
   </div>
-  <div class="nav">
-    <div class="prev">
-      <mat-icon class="pointer" *ngIf="hasPrev()" (click)="previousPage()">navigate_before</mat-icon>
-    </div>
-    <div class="total">
-      <h4>Current page: {{ (currentPage | async) + 1 }}/{{ totalPagesCount }}</h4>
-    </div>
-    <div class="next">
-      <mat-icon class="pointer" *ngIf="hasNext()" (click)="nextPage()">navigate_next</mat-icon>
-    </div>
-  </div>
+  <app-reader-navbar [book]="book"></app-reader-navbar>
 </div>
 
 <span #cWidthMeasureEl class="invisible">

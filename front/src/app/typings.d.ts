@@ -31,7 +31,8 @@ declare type Book = {
       P: string[]
     }[]
   }
-  LastPageNumber: number;
+  PageNumber: number;
+  TotalPages: number;
 }
 
 declare type AuthorType = {

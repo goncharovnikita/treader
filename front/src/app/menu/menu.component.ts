@@ -1,5 +1,6 @@
+import { BooksService } from './../books.service';
 import { AppService } from './../app.service';
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 @Component({
@@ -10,25 +11,34 @@ import { Observable } from 'rxjs/Observable';
 export class MenuComponent implements OnInit {
   books: Observable<Array<Book>>;
   @ViewChild('fileInput') fileInputRef: ElementRef;
-  constructor(private $s: AppService) { }
+  constructor(
+    private $s: AppService,
+    private $b: BooksService,
+    private $cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit() {
-    this.books = this.$s.fetchBooks().map(b => b ? Object.values(b) : b);
+    this.$cdr.detach();
+    this.books = this.$b.fetchBooks().map(b => b ? <Array<Book>>Object.values(b) : []);
+    this.books.debounceTime(200).subscribe(() => {
+      this.$cdr.detectChanges();
+    });
   }
 
   onFileChange() {
-    this.$s.addNewBook(this.fileInputRef.nativeElement.files[0])
+    this.$b.addNewBook(this.fileInputRef.nativeElement.files[0])
       .subscribe((r: {book: Book}) => {
         console.log(r);
         if (r.book) {
-          this.$s.setBooks(r.book);
+          this.$b.addBook(r.book);
           this.fileInputRef.nativeElement.value = '';
+          this.$cdr.detectChanges();
         }
       });
   }
 
   selectBook(b: Book) {
-    this.$s.selectBook(b);
+    this.$b.selectBook(b);
   }
 
 }

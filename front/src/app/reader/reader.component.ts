@@ -1,3 +1,4 @@
+import { BooksService } from './../books.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { ReaderService } from './reader.service';
@@ -17,47 +18,49 @@ export class ReaderComponent implements OnInit, AfterViewInit {
   uniqueChars = uniqueChars;
   currentPageValue = new BehaviorSubject([]);
   ready = new Subject();
-  currentPage = new BehaviorSubject(0);
   pages = new BehaviorSubject([[]]);
-  totalPagesCount = 0;
   pHeight = 18;
   numbersOfParagraphsPerPage: number;
+  subscribed = false;
   /**
    * Constructor
    */
   constructor(
     private $s: ReaderService,
     private $zone: NgZone,
-    private $cdr: ChangeDetectorRef
+    private $cdr: ChangeDetectorRef,
+    private $b: BooksService
   ) {}
 
-  get bookTitle(): string {
-    return this.book.getValue().Description.TitleInfo.BookTitle;
+  get bookTitle(): Observable<string> {
+    return this.book.map(b => b ? b.Description.TitleInfo.BookTitle : '');
   }
 
-  get author(): string {
-    const aPath = this.book.getValue().Description.DocumentInfo.Author[0];
-    const firstName  = aPath.FirstName ? aPath.FirstName : '';
-    const middleName = aPath.MiddleName ? aPath.MiddleName : '';
-    const lastName   = aPath.LastName ? aPath.LastName : '';
-    if (!aPath) { return ''; }
-    return `${firstName} ${middleName} ${lastName}`;
+  get author(): Observable<string> {
+    return this.book.map(b => {
+      if (!b) { return ''; }
+      const aPath = b.Description.DocumentInfo.Author[0];
+      const firstName  = aPath.FirstName ? aPath.FirstName : '';
+      const middleName = aPath.MiddleName ? aPath.MiddleName : '';
+      const lastName   = aPath.LastName ? aPath.LastName : '';
+      if (!aPath) { return ''; }
+      return `${firstName} ${middleName} ${lastName}`;
+    });
   }
 
   ngOnInit() {
-    this.$cdr.detach();
+    // this.$cdr.detach();
     this.book.subscribe(b => {
-      console.log(b);
       if (!b) { return; }
-      if (this.book.getValue().LastPageNumber) {
-        this.currentPage.next(this.book.getValue().LastPageNumber);
+      this.currentPageValue.next(this.pages.getValue()[b.PageNumber]);
+      this.$cdr.detectChanges();
+      if (!this.subscribed) {
+        this.subscriptions();
       }
-      this.subscriptions();
     });
   }
 
   ngAfterViewInit() {
-    this.pages.next(this.parseBookContent(this.getCharWidthMap()));
     this.ready.next(true);
   }
 
@@ -77,12 +80,16 @@ export class ReaderComponent implements OnInit, AfterViewInit {
    * Subscribe on various events
    */
   subscriptions() {
+    this.subscribed = true;
+    console.log('subscriptions')
+    this.pages.next(this.parseBookContent(this.getCharWidthMap()));
     this.ready.subscribe(() => {
       console.log('view ready');
       this.pages.subscribe(p => {
-        this.totalPagesCount = p.length;
-        this.currentPageValue.next(this.pages.getValue()[this.currentPage.getValue()]);
-        this.$cdr.detectChanges();
+        console.log(p)
+        this.$b.updateBook(Object.assign(this.book.getValue(), { TotalPages: p.length }));
+        this.currentPageValue.next(this.pages.getValue()[this.book.getValue().PageNumber]);
+        this.$cdr.markForCheck();
       });
 
       Observable.fromEvent(window, 'resize')
@@ -91,13 +98,12 @@ export class ReaderComponent implements OnInit, AfterViewInit {
         });
 
       this.$s.triggerRefetchBookData.subscribe(v => {
+        console.log('refetch book data')
         Observable.timer(50).subscribe(_ => this.pages.next(this.parseBookContent(this.getCharWidthMap())));
       });
 
-      this.currentPage.subscribe(v => {
-        this.currentPageValue.next(this.pages.getValue()[v]);
-        this.$cdr.detectChanges();
-      });
+      // this.currentPage.subscribe(v => {
+      // });
       this.addWindowListener();
     });
   }
@@ -118,14 +124,6 @@ export class ReaderComponent implements OnInit, AfterViewInit {
         this.replaceSelectedText(r);
       });
     });
-  }
-
-  hasNext(): boolean {
-    return this.currentPage.getValue() < this.totalPagesCount - 1;
-  }
-
-  hasPrev(): boolean {
-    return this.currentPage.getValue() > 0;
   }
 
   getClickedRange(): any {
@@ -170,18 +168,6 @@ export class ReaderComponent implements OnInit, AfterViewInit {
     range.deleteContents();
     range.insertNode(document.createTextNode(`${replacementText}`));
     window.getSelection().removeRange(range);
-  }
-
-  nextPage() {
-    if (this.hasNext()) {
-      this.currentPage.next(this.currentPage.getValue() + 1);
-    }
-  }
-
-  previousPage() {
-    if (this.hasPrev()) {
-      this.currentPage.next(this.currentPage.getValue() - 1);
-    }
   }
 
   parseBookContent(charWidthMap: {}) {

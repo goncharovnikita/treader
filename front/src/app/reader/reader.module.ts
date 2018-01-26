@@ -1,3 +1,4 @@
+import { ReaderNavbarComponent } from './navbar/navbar.component';
 import { RendererComponent } from './renderer/renderer.component';
 import { ReaderService } from './reader.service';
 import { ReaderComponent } from './reader.component';
@@ -12,7 +13,8 @@ import { MaterialModule } from '../material.module';
   ],
   declarations: [
     ReaderComponent,
-    RendererComponent
+    RendererComponent,
+    ReaderNavbarComponent
   ],
   exports: [
     ReaderComponent

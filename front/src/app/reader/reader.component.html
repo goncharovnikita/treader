@@ -11,7 +11,12 @@
       </div>
     </ng-container> -->
   </div>
-  <app-reader-navbar [book]="book"></app-reader-navbar>
+  <app-reader-navbar 
+    [currentPage]="currentPage" 
+    [totalPages]="totalPages"
+    [nextPageHook]="nextPage"
+    [prevPageHook]="prevPage"    
+    ></app-reader-navbar>
 </div>
 
 <span #cWidthMeasureEl class="invisible">

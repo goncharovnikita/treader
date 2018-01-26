@@ -15,6 +15,7 @@ import {
 } from '@angular/core';
 import { uniqueChars } from './unique-chars';
 import { Subject } from 'rxjs/Subject';
+import { AppService } from '../app.service';
 
 @Component({
   selector: 'app-reader',
@@ -26,7 +27,8 @@ export class ReaderComponent implements OnInit, AfterViewInit {
   @Input() book: BehaviorSubject<Book>;
   @ViewChild('contentEl') contentRef: ElementRef;
   @ViewChild('cWidthMeasureEl') cWidthMeasureEl: ElementRef;
-  pageNumber = new BehaviorSubject(0);
+  currentPage = new BehaviorSubject(0);
+  totalPages = new BehaviorSubject(0);
   uniqueChars = uniqueChars;
   currentPageValue = new BehaviorSubject([]);
   ready = new Subject();
@@ -41,7 +43,8 @@ export class ReaderComponent implements OnInit, AfterViewInit {
     private $s: ReaderService,
     private $zone: NgZone,
     private $cdr: ChangeDetectorRef,
-    private $b: BooksService
+    private $b: BooksService,
+    private $app: AppService
   ) {}
 
   get bookTitle(): Observable<string> {
@@ -61,13 +64,14 @@ export class ReaderComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    // this.$cdr.detach();
     this.book.subscribe(b => {
       if (!b) { return; }
-      this.pages.next(this.parseBookContent(this.getCharWidthMap()));
-      this.currentPageValue.next(this.pages.getValue()[b.PageNumber]);
-      this.$cdr.detectChanges();
-      this.$cdr.markForCheck();
+      console.log(b)
+      this.currentPage.next(this.book.getValue().PageNumber);
+      if (this.contentRef.nativeElement.clientHeight > 0) {
+        this.pages.next(this.parseBookContent(this.getCharWidthMap()));
+        this.currentPageValue.next(this.pages.getValue()[this.currentPage.getValue()]);
+      }
       if (!this.subscribed) {
         this.subscriptions();
       }
@@ -95,10 +99,14 @@ export class ReaderComponent implements OnInit, AfterViewInit {
     this.ready.subscribe(() => {
       console.log('view ready');
       this.pages.subscribe(p => {
-        this.$b.softUpdateBook(Object.assign(this.book.getValue(), { TotalPages: p.length }));
-        // this.currentPageValue.next(this.pages.getValue()[this.book.getValue().PageNumber]);
-        this.$cdr.markForCheck();
-        this.$cdr.detectChanges();
+        console.log(p)
+        if (p.length) {
+          this.totalPages.next(p.length);
+        }
+        if (this.contentRef.nativeElement.clientHeight > 0) {
+          this.$b.softUpdateBook(Object.assign(this.book.getValue(), { TotalPages: p.length }));
+        }
+        this.currentPageValue.next(this.pages.getValue()[this.currentPage.getValue()]);
       });
 
       Observable.fromEvent(window, 'resize')
@@ -106,11 +114,27 @@ export class ReaderComponent implements OnInit, AfterViewInit {
           this.pages.next(this.parseBookContent(this.getCharWidthMap()));
         });
 
+      this.currentPage.subscribe(p => {
+        console.log(p)
+        this.$b.softUpdateBook(Object.assign(this.book.getValue(), {PageNumber: p}));
+        this.currentPageValue.next(this.pages.getValue()[p]);
+      });
+
       this.$s.triggerRefetchBookData.subscribe(v => {
         console.log('refetch book data');
-        Observable.timer(50).subscribe(_ => this.pages.next(this.parseBookContent(this.getCharWidthMap())));
+        Observable.timer(50).subscribe(_ => {
+          this.pages.next(this.parseBookContent(this.getCharWidthMap()))
+        });
       });
     });
+  }
+
+  nextPage() {
+    this.currentPage.next(this.currentPage.getValue() + 1);
+  }
+
+  prevPage() {
+    this.currentPage.next(this.currentPage.getValue() - 1);
   }
 
   splitWords(t: string) {

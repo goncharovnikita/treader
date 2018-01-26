@@ -6,11 +6,14 @@ import { Component, OnInit, Input, ChangeDetectionStrategy, ChangeDetectorRef } 
 @Component({
   selector: 'app-reader-navbar',
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.sass']
-  // changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./navbar.component.sass'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReaderNavbarComponent implements OnInit {
-  @Input() book: BehaviorSubject<Book>;
+  @Input() totalPages: BehaviorSubject<number>;
+  @Input() currentPage: BehaviorSubject<number>;
+  @Input() nextPageHook: () => void;
+  @Input() prevPageHook: () => void;
 
   constructor(
     private $b: BooksService,
@@ -18,34 +21,30 @@ export class ReaderNavbarComponent implements OnInit {
   ) {}
 
   hasNext(): Observable<boolean> {
-    return this.book.map(b => b.PageNumber < b.TotalPages - 1);
+    return this.currentPage.switchMap(c => {
+      return this.totalPages.map(t => c < t - 1);
+    });
     // return this.book.getValue().PageNumber < this.book.getValue().TotalPages - 1;
   }
 
   hasPrev(): Observable<boolean> {
-    return this.book.map(b => b.PageNumber > 0);
+    return this.currentPage.map(c => c > 0);
   }
 
   nextPage() {
-    // this.$cdr.markForCheck();
     if (this.hasNext()) {
-      this.$b.updateBook(Object.assign(this.book.getValue(), {PageNumber: this.book.getValue().PageNumber + 1}));
+      this.nextPageHook();
     }
   }
 
   previousPage() {
-    this.$cdr.markForCheck();
     if (this.hasPrev()) {
-      this.$b.updateBook(Object.assign(this.book.getValue(), {PageNumber: this.book.getValue().PageNumber - 1}));
+      this.prevPageHook();
     }
   }
 
 
   ngOnInit() {
     // this.$cdr.detach();
-    this.book.subscribe(b => {
-      console.log(b);
-      // this.$cdr.detectChanges();
-    });
   }
 }

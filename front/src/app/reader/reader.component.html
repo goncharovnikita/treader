@@ -23,3 +23,9 @@
     </div>
   </div>
 </div>
+
+<span #cWidthMeasureEl class="invisible">
+  <ng-container *ngFor="let u of uniqueChars">
+    <span [innerHTML]="u" ></span>
+  </ng-container>
+</span>

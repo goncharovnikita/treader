@@ -167,40 +167,6 @@ export class ReaderComponent implements OnInit {
     }
   }
 
-  caclulatePageContent(): string[][] {
-    let restHeight = this.contentRef.nativeElement.clientHeight;
-    if (restHeight < 1) { return [[]]; }
-    const result = [];
-    let currPage = [];
-    const charWidth = 10;
-    const width = this.contentRef.nativeElement.clientWidth;
-    const pHeight = 18;
-    let jumpingLimit = 10000;
-    let remainingArray = this.getFlatContent(this.book.getValue().Body.Sections);
-    console.log(remainingArray.length);
-    this.$zone.runOutsideAngular(() => {
-      while (remainingArray.length > 0 && jumpingLimit > 0) {
-        // console.log(remainingArray)
-        // console.log(`jumping ${jumpingLimit}`)
-        const item = remainingArray[0];
-        const p = item.replace(/<\/?\w+>/g, '');
-        restHeight -= (Math.floor(((p.length * charWidth) / width)) + 1) * pHeight;
-        if (restHeight > 0) {
-          currPage.push(item);
-          remainingArray = remainingArray.slice(1);
-        } else {
-          result.push(currPage);
-          currPage = [];
-          restHeight = this.contentRef.nativeElement.clientHeight;
-        }
-        jumpingLimit--;
-      }
-      if (currPage.length > 0) { result.push(currPage); }
-      this.$zone.run(() => {});
-    });
-    return result;
-  }
-
   parseBookContent() {
     let restHeight = this.contentRef.nativeElement.clientHeight;
     if (restHeight < 1) { return [[]]; }
@@ -215,7 +181,7 @@ export class ReaderComponent implements OnInit {
       let a = width;
       let prevSlice = 0;
       for (let j = 0; j < remainingArray[i].length; j++) {
-        if (a === 0) {
+        if (a <= 0) {
           currPage.push(remainingArray[i].slice(prevSlice, j));
           prevSlice = j;
           a = width;

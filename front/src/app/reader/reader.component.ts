@@ -104,7 +104,7 @@ export class ReaderComponent implements OnInit, AfterViewInit {
 
       // this.currentPage.subscribe(v => {
       // });
-      this.addWindowListener();
+      // this.addWindowListener();
     });
   }
 

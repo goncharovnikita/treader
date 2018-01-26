@@ -6,8 +6,8 @@ import { Component, OnInit, Input, ChangeDetectionStrategy, ChangeDetectorRef } 
 @Component({
   selector: 'app-reader-navbar',
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.sass'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./navbar.component.sass']
+  // changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReaderNavbarComponent implements OnInit {
   @Input() book: BehaviorSubject<Book>;
@@ -44,6 +44,7 @@ export class ReaderNavbarComponent implements OnInit {
   ngOnInit() {
     // this.$cdr.detach();
     this.book.subscribe(b => {
+      console.log(b);
       // this.$cdr.detectChanges();
     });
   }

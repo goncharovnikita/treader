@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { BooksService } from './../books.service';
 import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
@@ -12,8 +13,14 @@ export class BookUnitComponent implements OnInit {
   @Input() book: Book;
   constructor(
     private $b: BooksService,
-    private $sanitizer: DomSanitizer
+    private $sanitizer: DomSanitizer,
+    private $router: Router
   ) {}
+
+  get author(): string {
+    const a = this.book.Description.DocumentInfo.Author[0];
+    return `${a.FirstName} ${a.LastName}`;
+  }
 
   get cover(): SafeUrl {
     const id = this.book.Description.TitleInfo.Coverpage.Image.Href;
@@ -36,6 +43,10 @@ export class BookUnitComponent implements OnInit {
 
   deleteBook() {
     this.$b.deleteBook(this.book);
+  }
+
+  selectBook() {
+    this.$router.navigate([`/book/${this.book.Description.DocumentInfo.ID}`]);
   }
 
   ngOnInit() {}

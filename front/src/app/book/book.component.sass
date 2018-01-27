@@ -1,0 +1,30 @@
+
+
+.layout
+  display: grid
+  min-height: 0
+  min-width: 0
+  height: 100%
+  width: 100%
+  grid-template-areas: "title" "author" "cover" "options"
+  grid-template-rows: auto auto 5fr auto
+
+.title
+  grid-area: title
+
+.author
+  grid-area: author
+
+.cover
+  grid-area: cover
+  height: 100%
+  display: grid
+  justify-content: center
+  align-items: center
+  img 
+    width: 9vh
+    height: 15vh
+    object-fit: cover
+
+.options
+  grid-area: options

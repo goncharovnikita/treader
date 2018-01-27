@@ -11,9 +11,6 @@ import { HelloPageGuard } from './guard';
   ],
   declarations: [
     HelloPageComponent
-  ],
-  providers: [
-    HelloPageGuard
   ]
 })
 export class HelloPageModule {}

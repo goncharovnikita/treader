@@ -18,6 +18,7 @@ import 'rxjs/add/operator/take';
 import { TranslateService } from './translate/service';
 import { AuthModule } from './auth/auth.module';
 import { MaterialModule } from './material.module';
+import { HelloPageGuard } from './hello-page/guard';
 
 @NgModule({
   imports: [
@@ -37,7 +38,8 @@ import { MaterialModule } from './material.module';
   providers: [
     TranslateService,
     HttpService,
-    BooksService
+    BooksService,
+    HelloPageGuard
   ]
 })
 export class SharedModule {

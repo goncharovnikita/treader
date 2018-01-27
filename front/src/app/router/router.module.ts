@@ -4,6 +4,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { HelloPageModule } from '../hello-page/hello-page.module';
 import { AuthGuard } from '../auth/auth.guard';
 import { HelloPageGuard } from '../hello-page/guard';
+import { SharedModule } from '../shared.module';
 
 const routes: Routes = [
   {
@@ -24,6 +25,7 @@ const routes: Routes = [
 
 @NgModule({
   imports: [
+    SharedModule,
     RouterModule.forRoot(routes, {
       useHash: true,
       enableTracing: false

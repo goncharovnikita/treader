@@ -53,7 +53,7 @@ func (f FB2Reader) ReadBook(data []byte) (words []string, bookInfo fb2.FB2, err 
 		return
 	}
 
-	if bookInfo, err = fb2Reader.Unmarshall(); err != nil {
+	if bookInfo, err = fb2Reader.Unmarshal(); err != nil {
 		return
 	}
 

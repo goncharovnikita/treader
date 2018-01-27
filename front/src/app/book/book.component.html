@@ -2,4 +2,10 @@
   <div class="title">
     {{ book.Description.TitleInfo.BookTitle }}
   </div>
+  <div class="delete">
+    <mat-icon (click)="deleteBook()" class="pointer">delete</mat-icon>
+  </div>
+  <div class="cover">
+    <img [src]="cover" alt="">
+  </div>
 </div>

@@ -50,7 +50,6 @@ const routes: Routes = [
     RouterModule.forChild(routes),
     // RouterModule.forRoot(routes),
     SharedModule,
-    MaterialModule,
     ReaderModule,
     MenuModule,
     HomeModule,

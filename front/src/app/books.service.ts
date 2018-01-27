@@ -58,8 +58,8 @@ export class BooksService {
     return this.books;
   }
 
-  private triggerSelectedBookToUpdate() {
-    this.selectBook(this.books.getValue()[this.selectedBook.getValue().Description.DocumentInfo.ID]);
+  fetchSelectedBook() {
+    return this.selectedBook;
   }
 
   selectBook(b: Book) {
@@ -67,8 +67,17 @@ export class BooksService {
     localStorage.setItem(this.SELECTED_BOOK, JSON.stringify(b));
   }
 
-  fetchSelectedBook() {
-    return this.selectedBook;
+  deleteBook(b: Book) {
+    const books = JSON.parse(localStorage.getItem(this.BOOKS_STORAGE));
+    const book = books[b.Description.DocumentInfo.ID];
+    if (!book) { return; }
+    delete books[b.Description.DocumentInfo.ID];
+    this.books.next(books);
+    if (this.selectedBook.getValue().Description.DocumentInfo.ID === b.Description.DocumentInfo.ID) {
+      this.selectedBook.next(null);
+      localStorage.removeItem(this.SELECTED_BOOK);
+    }
+    localStorage.setItem(this.BOOKS_STORAGE, JSON.stringify(books));
   }
 
   addBook(b: Book) {
@@ -78,6 +87,10 @@ export class BooksService {
     const newBooks = Object.assign(oldBooks, {[b.Description.DocumentInfo.ID]: b});
     localStorage.setItem(this.BOOKS_STORAGE, JSON.stringify(newBooks));
     this.books.next(newBooks);
+  }
+
+  private triggerSelectedBookToUpdate() {
+    this.selectBook(this.books.getValue()[this.selectedBook.getValue().Description.DocumentInfo.ID]);
   }
 
   // editBook(b: Book) {

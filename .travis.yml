@@ -1,9 +1,14 @@
+sudo: required
+
+services:
+  - docker
+
 matrix:
   include:
     - if: branch =~ back
     
-      script: back/deploy-docker.sh
+      script: cd back && build-docker.sh
 
     - if: branch =~ front
     
-      script: front/deploy-docker.sh
+      script: cd front && build-docker.sh

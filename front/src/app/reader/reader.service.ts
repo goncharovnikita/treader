@@ -1,3 +1,4 @@
+import { BooksService } from './../books.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { AppService } from './../app.service';
 import { Injectable, Inject } from '@angular/core';
@@ -9,7 +10,8 @@ export class ReaderService {
   triggerRefetchBookData = new BehaviorSubject(false);
   constructor(
     private $t: TranslateService,
-    private $app: AppService
+    private $app: AppService,
+    private $b: BooksService
     // @Inject('BASE_URL') private url: string
   ) {
     this.$app.menuExpanded.subscribe(this.triggerRefetchBookData);
@@ -20,7 +22,7 @@ export class ReaderService {
   }
 
   updateBook(b: Book) {
-    this.$app.updateBook(b);
+    this.$b.updateBook(b);
   }
 
 }

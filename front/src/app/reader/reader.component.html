@@ -1,24 +1,26 @@
 <div class="layout">
   <div class="header">
-    <h3 class="title">{{ bookTitle }}</h3>
-    <h4 class="creds">{{ author }}</h4>
+    <h3 class="title">{{ bookTitle | async }}</h3>
+    <h4 class="creds">{{ author | async }}</h4>
   </div>
   <div class="content" #contentEl >
-    <ng-container *ngFor="let w of (currentPageValue | async)">
+    <app-reader-renderer [sheet]="currentPageValue"></app-reader-renderer>
+    <!-- <ng-container *ngFor="let w of (currentPageValue | async)">
       <div [innerHTML]="w" >
        
       </div>
-    </ng-container>
+    </ng-container> -->
   </div>
-  <div class="nav">
-    <div class="prev">
-      <mat-icon class="pointer" *ngIf="hasPrev()" (click)="previousPage()">navigate_before</mat-icon>
-    </div>
-    <div class="total">
-      <h4>Current page: {{ (currentPage | async) + 1 }}/{{ totalPagesCount }}</h4>
-    </div>
-    <div class="next">
-      <mat-icon class="pointer" *ngIf="hasNext()" (click)="nextPage()">navigate_next</mat-icon>
-    </div>
-  </div>
+  <app-reader-navbar 
+    [currentPage]="currentPage" 
+    [totalPages]="totalPages"
+    [nextPageHook]="nextPage"
+    [prevPageHook]="prevPage"    
+    ></app-reader-navbar>
 </div>
+
+<span #cWidthMeasureEl class="invisible">
+  <ng-container *ngFor="let u of uniqueChars">
+    <span [innerHTML]="u" class="reader-font" ></span>
+  </ng-container>
+</span>

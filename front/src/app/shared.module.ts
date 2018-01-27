@@ -1,3 +1,4 @@
+import { BooksService } from './books.service';
 import { HttpService } from './http.service';
 import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -20,7 +21,8 @@ import { TranslateService } from './translate/service';
   ],
   providers: [
     TranslateService,
-    HttpService
+    HttpService,
+    BooksService
   ]
 })
 export class SharedModule {

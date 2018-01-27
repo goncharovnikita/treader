@@ -7,8 +7,8 @@ matrix:
   include:
     - if: branch =~ back
     
-      script: cd back && build-docker.sh
+      script: cd back && ./build-docker.sh
 
     - if: branch =~ front
     
-      script: cd front && build-docker.sh
+      script: cd front && ./build-docker.sh

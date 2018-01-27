@@ -1,7 +1,7 @@
 <div class="layout">
   <div class="recent">
     <h1 class="main-font grid-centry">Recent books</h1>
-    <div class="horizontal-list horizontal-list__4">
+    <div class="horizontal-list horizontal-centry">
       <ng-container *ngFor="let book of books | async">
         <div class="unit-layer">
           <app-book-unit [book]="book"></app-book-unit>

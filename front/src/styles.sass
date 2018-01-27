@@ -5,13 +5,16 @@
 @import url('https://fonts.googleapis.com/css?family=Alegreya')
 @import '~rules.sass'
 @import '~variables.sass'
+@import '~mixins.sass'
+
+@include scrollbars(2px, silver)
 
 html, body 
   height: 100%
   width: 100%
   margin: 0
   padding: 0
-  overflow-y: hidden
+  overflow: hidden
 
 p 
   margin: 4px 0

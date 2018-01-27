@@ -4,6 +4,7 @@ import { BooksService } from './../books.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
+import { User } from '@firebase/auth-types';
 
 @Component({
   selector: 'app-main',
@@ -13,6 +14,7 @@ import { Observable } from 'rxjs/Observable';
 export class AppMainComponent implements OnInit {
   menuExpanded: BehaviorSubject<boolean>;
   selectedBook: Observable<Book>;
+  user: Observable<User>;
 
   constructor(
     private $s: MainService,
@@ -21,6 +23,7 @@ export class AppMainComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.user = this.$auth.fetchAuthState();
     this.menuExpanded = this.$s.menuExpanded;
     this.selectedBook = this.$b.fetchSelectedBook();
   }

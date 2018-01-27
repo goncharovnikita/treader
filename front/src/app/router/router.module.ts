@@ -12,20 +12,21 @@ const routes: Routes = [
     canActivate: [HelloPageGuard]
   },
   {
-    path: 'home',
+    path: '',
     loadChildren: '../main/main.module#AppMainModule',
     canActivate: [AuthGuard]
   },
   {
     path: '**',
-    redirectTo: 'home'
+    redirectTo: ''
   }
 ];
 
 @NgModule({
   imports: [
     RouterModule.forRoot(routes, {
-      useHash: true
+      useHash: true,
+      enableTracing: false
     })
   ],
   exports: [

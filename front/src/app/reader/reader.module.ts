@@ -1,3 +1,4 @@
+import { SelectedBookResolver } from './selected-book.resolver';
 import { ReaderNavbarComponent } from './navbar/navbar.component';
 import { RendererComponent } from './renderer/renderer.component';
 import { ReaderService } from './reader.service';
@@ -20,7 +21,8 @@ import { MaterialModule } from '../material.module';
     ReaderComponent
   ],
   providers: [
-    ReaderService
+    ReaderService,
+    SelectedBookResolver
   ]
 })
 export class ReaderModule {}

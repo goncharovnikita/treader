@@ -1,3 +1,4 @@
+import { BookUnitComponent } from './book/book.component';
 import { AppAngularfireModule } from './angularfire/angularfire.module';
 import { BooksService } from './books.service';
 import { HttpService } from './http.service';
@@ -13,15 +14,20 @@ import 'rxjs/add/operator/throttleTime';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/observable/timer';
+import 'rxjs/add/operator/take';
 import { TranslateService } from './translate/service';
 import { AuthModule } from './auth/auth.module';
 
 @NgModule({
+  declarations: [
+    BookUnitComponent
+  ],
   exports: [
     CommonModule,
     HttpClientModule,
     AuthModule,
-    AppAngularfireModule
+    AppAngularfireModule,
+    BookUnitComponent
   ],
   providers: [
     TranslateService,

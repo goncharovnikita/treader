@@ -3,6 +3,11 @@
     <div class="button is-button" (click)="fileInputRef.nativeElement.click()" >Добавить книгу</div>
     <input class="hidden" type="file" #fileInput (change)="onFileChange()" >
   </div>
+  <div class="to-lib">
+    <div class="button is-button" (click)="toLib()">
+      To library
+    </div>
+  </div>
   <div class="list">
     <p>Список книг</p>
     <ng-container *ngFor="let b of books | async">

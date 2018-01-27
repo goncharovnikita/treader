@@ -16,14 +16,38 @@
 .header
   grid-area: header
   display: grid
-  grid-template-columns: 30% 70%
+  grid-template-columns: auto 2fr
   background-color: $mainColor
+
+.credentials
+  padding: 0 1vw
+  background-color: #5a5a5a
+  display: grid
+  grid-template-columns: auto auto
+  grid-gap: 1vw
+
+.credentials__expanded
+  grid-template-columns: auto auto 2fr
+
+.initials
+  font-size: 1.5em
+  color: white
+
+.avatar
+  display: grid
+  justify-content: center
+  align-items: center
+  img 
+    height: 4vh 
+    width: 4vh
+
+mat-icon
+  color: white
 
 .title
   display: flex
   justify-content: space-around
   align-items: center
-
 
 .icon
   display: flex
@@ -50,10 +74,10 @@
 
   .menu-expanded
     grid-template-areas: "header header" "menu content"
-    grid-template-columns: 20% 80%
+    grid-template-columns: 30% 70%
 
   .header
-    grid-template-columns: 10% 90%
+    grid-template-columns: 30% 70%
 
   .menu-hidden
     display: none

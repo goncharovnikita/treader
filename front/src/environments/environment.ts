@@ -5,5 +5,13 @@
 
 export const environment = {
   production: false,
-  baseURL: 'http://localhost:8080'
+  baseURL: 'http://localhost:8080',
+  firebase: {
+    apiKey: 'AIzaSyCue4_SmpFmLpjophtUkdbMybGfP_MfLqc',
+    authDomain: 'treader-beta.firebaseapp.com',
+    databaseURL: 'https://treader-beta.firebaseio.com',
+    projectId: 'treader-beta',
+    storageBucket: 'treader-beta.appspot.com',
+    messagingSenderId: '269740668817'
+  }
 };

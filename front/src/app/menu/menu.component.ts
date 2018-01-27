@@ -1,5 +1,6 @@
+import { Router } from '@angular/router';
+import { MainService } from './../main/main.service';
 import { BooksService } from './../books.service';
-import { AppService } from './../app.service';
 import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
@@ -12,9 +13,10 @@ export class MenuComponent implements OnInit {
   books: Observable<Array<Book>>;
   @ViewChild('fileInput') fileInputRef: ElementRef;
   constructor(
-    private $s: AppService,
+    private $s: MainService,
     private $b: BooksService,
-    private $cdr: ChangeDetectorRef
+    private $cdr: ChangeDetectorRef,
+    private $router: Router
   ) { }
 
   ngOnInit() {
@@ -39,6 +41,10 @@ export class MenuComponent implements OnInit {
 
   selectBook(b: Book) {
     this.$b.selectBook(b);
+  }
+
+  toLib() {
+    this.$router.navigate(['/library']);
   }
 
 }

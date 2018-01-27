@@ -16,6 +16,7 @@ import {
 import { uniqueChars } from './unique-chars';
 import { Subject } from 'rxjs/Subject';
 import { AppService } from '../app.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-reader',
@@ -24,7 +25,7 @@ import { AppService } from '../app.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReaderComponent implements OnInit, AfterViewInit {
-  @Input() book: BehaviorSubject<Book>;
+  book: BehaviorSubject<Book>;
   @ViewChild('contentEl') contentRef: ElementRef;
   @ViewChild('cWidthMeasureEl') cWidthMeasureEl: ElementRef;
   currentPage = new BehaviorSubject(0);
@@ -44,7 +45,8 @@ export class ReaderComponent implements OnInit, AfterViewInit {
     private $zone: NgZone,
     private $cdr: ChangeDetectorRef,
     private $b: BooksService,
-    private $app: AppService
+    private $app: AppService,
+    private $route: ActivatedRoute
   ) {}
 
   get bookTitle(): Observable<string> {
@@ -64,6 +66,8 @@ export class ReaderComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
+    this.book = new BehaviorSubject(null);
+    this.$route.data.map(v => v['selected_book']).subscribe(v => this.book.next(v));
     this.book.subscribe(b => {
       if (!b) { return; }
       console.log(b)

@@ -1,15 +1,17 @@
+import { AppMainModule } from './main/main.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { MaterialModule } from './material.module';
 import { AppService } from './app.service';
-import { MenuModule } from './menu/menu.module';
 import { SharedModule } from './shared.module';
-import { ReaderModule } from './reader/reader.module';
 import { NgModule } from '@angular/core';
 
 
 import { AppComponent } from './app.component';
 import { environment } from '../environments/environment';
+import { AppRouterModule } from './router/router.module';
+import { HelloPageModule } from './hello-page/hello-page.module';
+import { AuthModule } from './auth/auth.module';
 
 
 @NgModule({
@@ -18,11 +20,10 @@ import { environment } from '../environments/environment';
   ],
   imports: [
     SharedModule.forRoot(),
-    ReaderModule,
-    MenuModule,
     BrowserModule,
     BrowserAnimationsModule,
-    MaterialModule
+    MaterialModule,
+    AppRouterModule
   ],
   providers: [
     AppService,

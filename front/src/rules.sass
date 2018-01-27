@@ -1,3 +1,5 @@
+@import '~variables.sass'
+
 .pointer
   cursor: pointer
 
@@ -12,7 +14,23 @@
 
 // Buttons
 .is-button
+  cursor: pointer
   &:active
     filter: contrast(120%)
   &:hover
     opacity: 0.8
+
+.main-font
+  font-family: $mainFont
+
+.grid-centry
+  display: grid
+  justify-content: center 
+  align-items: center
+
+.horizontal-list
+  display: grid
+  grid-gap: 2vw
+
+.horizontal-list__4
+  grid-template-columns: repeat(4, 1fr)

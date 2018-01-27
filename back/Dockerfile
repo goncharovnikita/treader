@@ -1,6 +1,8 @@
 
 FROM golang:1.9.2
 
+ARG stage
+
 WORKDIR /back/
 
 ADD . /back/

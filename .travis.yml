@@ -1,9 +1,27 @@
+sudo: required
+
+services:
+  - docker
+
 matrix:
   include:
     - if: branch =~ back
+
+      env:
+        - STAGE=beta
     
-      script: back/deploy-docker.sh
+      script: cd back && ./build-docker.sh
 
     - if: branch =~ front
+
+      env:
+          - STAGE=beta
     
-      script: front/deploy-docker.sh
+      script: cd front && ./build-docker.sh
+
+    - if: branch =~ master
+
+      env:
+          - STAGE=prod
+    
+      script: cd front && ./build-docker.sh && cd .. && cd back && ./build-docker.sh

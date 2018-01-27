@@ -1,4 +1,6 @@
-FROM mhart/alpine-node:8.9.1 as builder
+FROM mhart/alpine-node:8.9.4 as builder
+
+ARG stage
 
 WORKDIR /app
 
@@ -6,7 +8,7 @@ COPY . /app
 
 RUN npm install
 
-RUN npm run build -- --prod
+RUN npm run build:$stage
 
 FROM abiosoft/caddy
 

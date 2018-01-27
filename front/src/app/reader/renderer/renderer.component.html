@@ -1,5 +1,9 @@
 <div class="sheet">
   <ng-container *ngFor="let s of sheet | async">
-    <div [innerHTML]="s" ></div>
+    <div class="reader-font" >
+      <ng-container *ngFor="let word of getWords(s)">
+        <span (click)="handleClick($event)" >{{ word }} </span>
+      </ng-container>
+    </div>
   </ng-container>
 </div>

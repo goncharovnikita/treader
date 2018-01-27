@@ -1,0 +1,56 @@
+@import '~variables.sass'
+
+.layout
+  // padding: 8px
+  margin: 0 1vw 2vh 1vw
+  display: grid
+  min-height: 0
+  min-width: 0
+  height: 39vh
+  width: 47vw 
+  grid-template-areas: "title" "author" "cover" "options"
+  grid-template-rows: 20% 10% 60% 10%
+  background-color: #f0fcfd
+
+.title
+  grid-area: title
+  text-align: center
+  word-wrap: break-word
+  font-family: $mainFont
+  display: grid
+  align-content: center
+  overflow: hidden
+  text-overflow: ellipsis
+
+.author
+  grid-area: author
+  text-align: center
+  word-wrap: break-word
+  font-family: $mainFont
+  display: grid
+  align-content: center
+  overflow: hidden
+  text-overflow: ellipsis
+
+.cover
+  grid-area: cover
+  height: 100%
+  display: grid
+  justify-content: center
+  align-items: center
+  img 
+    width: 18vh
+    height: -webkit-fill-available
+    object-fit: cover
+
+.options
+  grid-area: options
+
+// width over 600px 
+@media screen and (min-width: 600px)
+  .layout
+    width: 30vw
+
+@media screen and (min-width: 968px)
+  .layout
+    width: 22vw

@@ -8,12 +8,4 @@
       To library
     </div>
   </div>
-  <div class="list">
-    <p>Список книг</p>
-    <ng-container *ngFor="let b of books | async">
-      <div class="book pointer" (click)="selectBook(b)" >
-        {{ b.Description.TitleInfo.BookTitle }}
-      </div>
-    </ng-container>
-  </div>
 </div>

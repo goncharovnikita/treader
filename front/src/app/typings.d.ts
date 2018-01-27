@@ -8,7 +8,7 @@ declare type Book = {
 			Keywords:   string  
 			Date:       string  
 			Coverpage: {
-				Image: string[]
+				Image: {Href: string}
 			}
 			Lang:       string    
 			SrcLang:    string    
@@ -31,6 +31,11 @@ declare type Book = {
       P: string[]
     }[]
   }
+  Binary: {
+    ContentType: string;
+    ID: string;
+    Value: string;
+  }[]
   PageNumber: number;
   TotalPages: number;
 }

@@ -17,8 +17,12 @@ import 'rxjs/add/observable/timer';
 import 'rxjs/add/operator/take';
 import { TranslateService } from './translate/service';
 import { AuthModule } from './auth/auth.module';
+import { MaterialModule } from './material.module';
 
 @NgModule({
+  imports: [
+    MaterialModule
+  ],
   declarations: [
     BookUnitComponent
   ],
@@ -27,6 +31,7 @@ import { AuthModule } from './auth/auth.module';
     HttpClientModule,
     AuthModule,
     AppAngularfireModule,
+    MaterialModule,
     BookUnitComponent
   ],
   providers: [

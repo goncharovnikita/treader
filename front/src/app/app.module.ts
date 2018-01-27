@@ -22,7 +22,6 @@ import { AuthModule } from './auth/auth.module';
     SharedModule.forRoot(),
     BrowserModule,
     BrowserAnimationsModule,
-    MaterialModule,
     AppRouterModule
   ],
   providers: [

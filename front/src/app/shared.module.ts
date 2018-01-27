@@ -1,3 +1,4 @@
+import { AppAngularfireModule } from './angularfire/angularfire.module';
 import { BooksService } from './books.service';
 import { HttpService } from './http.service';
 import { NgModule, ModuleWithProviders } from '@angular/core';
@@ -13,11 +14,14 @@ import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/observable/timer';
 import { TranslateService } from './translate/service';
+import { AuthModule } from './auth/auth.module';
 
 @NgModule({
   exports: [
     CommonModule,
-    HttpClientModule
+    HttpClientModule,
+    AuthModule,
+    AppAngularfireModule
   ],
   providers: [
     TranslateService,

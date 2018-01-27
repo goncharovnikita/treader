@@ -1,0 +1,16 @@
+<div class="layout" [ngClass]="{'menu-expanded': menuExpanded | async}" >
+  <div class="header">
+    <div class="icon">
+      <mat-icon class="pointer" (click)="triggerMenu()" >menu</mat-icon>
+    </div>
+    <div class="title">
+      TReader
+    </div>
+  </div>
+  <div class="menu" [ngClass]="{'menu-hidden': !(menuExpanded | async)}" >
+    <app-menu></app-menu>
+  </div>
+  <div class="content" [ngClass]="{'content-hidden': menuExpanded | async}" *ngIf="selectedBook | async" >
+    <app-reader [book]="selectedBook" ></app-reader>
+  </div>
+</div>

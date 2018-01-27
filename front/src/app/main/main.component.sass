@@ -1,0 +1,62 @@
+@import '~variables.sass'
+
+.layout
+  height: 100%
+  width: 100%
+  display: grid
+  grid-template-areas: "header" "content"
+  grid-template-rows: 5% 95%
+
+.menu-expanded
+  grid-template-areas: "header" "menu"
+
+.mobile-hidden
+  display: none
+
+.header
+  grid-area: header
+  display: grid
+  grid-template-columns: 30% 70%
+  background-color: $mainColor
+
+.title
+  display: flex
+  justify-content: space-around
+  align-items: center
+
+
+.icon
+  display: flex
+  justify-content: space-around
+  align-items: center
+
+.menu
+  grid-area: menu
+
+.menu-hidden
+  display: none
+
+.content
+  grid-area: content
+
+.content-hidden
+  display: none
+
+@media screen and (min-width: 600px)
+  .layout
+    display: grid
+    grid-template-areas: "header" "content"
+    grid-template-columns: 100%
+
+  .menu-expanded
+    grid-template-areas: "header header" "menu content"
+    grid-template-columns: 20% 80%
+
+  .header
+    grid-template-columns: 10% 90%
+
+  .menu-hidden
+    display: none
+
+  .content-hidden
+    display: block

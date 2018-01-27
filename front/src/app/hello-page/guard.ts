@@ -16,6 +16,7 @@ export class HelloPageGuard implements CanActivate {
         if (!v) {
           return true;
         }
+        console.log('navigate home');
         this.$router.navigate(['/home']);
         return false;
       });

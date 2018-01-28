@@ -9,7 +9,7 @@ import (
 	"../db"
 )
 
-func TestGetOne(t *testing.T) {
+func TestUpdate(t *testing.T) {
 	defer cleanup()
 	db.Connect(dbURL, dbName)
 
@@ -22,10 +22,15 @@ func TestGetOne(t *testing.T) {
 		log.Fatal(err)
 	}
 
+	testModel.Description.TitleInfo.Genre = []string{"test_book_updated"}
+
+	if err := db.Update("1", &testModel); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := db.GetOne("1", &result); err != nil {
 		log.Fatal(err)
 	}
 
-	assert.Equal(t, "test_book", result.Description.TitleInfo.Genre[0])
-
+	assert.Equal(t, "test_book_updated", result.Description.TitleInfo.Genre[0])
 }

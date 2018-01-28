@@ -15,3 +15,10 @@ func Insert(c CollectingModificator) (err error) {
 
 	return
 }
+
+// Add performs updating or creating new document in database
+// func Add(c CollectingModificator) (err error) {
+// 	c.Modificate()
+
+// 	return
+// }

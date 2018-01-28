@@ -13,15 +13,14 @@ var (
 )
 
 func TestInsert(t *testing.T) {
+	defer cleanup()
 	db.Connect(dbURL, dbName)
 
 	var testModel db.Book
-	testModel.FictionBook = "test_book"
+	testModel.Description.TitleInfo.Genre = []string{"test_book"}
 
 	if err := db.Insert(&testModel); err != nil {
-		cleanup()
 		log.Fatal(err)
 	}
 
-	cleanup()
 }

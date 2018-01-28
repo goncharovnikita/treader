@@ -34,6 +34,7 @@ func (s server) Start() {
 
 	h.Handle("/new/book", corsProvider(newBookHandler()))
 	h.Handle("/get/books", corsProvider(getBooksHandler()))
+	h.Handle("/update/book/info", corsProvider(updateBookInfoHandler()))
 	h.Handle("/translate", translateWordHandler())
 
 	log.Fatal(http.ListenAndServe(s.port, h))

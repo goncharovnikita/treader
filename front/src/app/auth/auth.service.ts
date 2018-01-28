@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { Injectable } from '@angular/core';
@@ -5,12 +6,14 @@ import { AngularFireAuth } from 'angularfire2/auth';
 import * as firebase from 'firebase/app';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { User } from '@firebase/auth-types';
+import { isNullOrUndefined } from 'util';
 
 @Injectable()
 export class AuthService {
   constructor(
     private $fireAuth: AngularFireAuth,
-    private $router: Router
+    private $router: Router,
+    private $http: HttpClient
   ) {}
 
   fetchAuthState(): Observable<User> {
@@ -35,8 +38,24 @@ export class AuthService {
 
   logout() {
     this.$fireAuth.auth.signOut().then(_ => {
-      console.log('navigate login from auth service')
+      console.log('navigate login from auth service');
       this.$router.navigate(['/hello']);
     });
+  }
+
+  get(url: string, options: {} = {}): Observable<any> {
+    return this.fetchAuthState()
+      .switchMap(user => {
+        options = Object.assign(options, {headers: {'user-id': user.uid}});
+        return this.$http.get(url, options);
+      });
+  }
+
+  post(url: string, body: any, options: {} = {}): Observable<any> {
+    return this.fetchAuthState().filter(v => !isNullOrUndefined(v))
+      .switchMap(user => {
+        options = Object.assign(options, {headers: {'user-id': user.uid}});
+        return this.$http.post(url, body, options);
+      });
   }
 }

@@ -31,13 +31,15 @@ export class MenuComponent implements OnInit {
 
   onFileChange() {
     this.$b.addNewBook(this.fileInputRef.nativeElement.files[0])
-      .subscribe((r: {book: Book}) => {
-        console.log(r);
-        if (r.book) {
-          this.$b.addBook(r.book);
-          this.fileInputRef.nativeElement.value = '';
-          this.$cdr.detectChanges();
+      .subscribe((r) => {
+        if (r) {
+          this.$b.fetchBooksFromServer();
         }
+        // if (r.book) {
+        //   this.$b.addBook(r.book);
+        //   this.fileInputRef.nativeElement.value = '';
+        //   this.$cdr.detectChanges();
+        // }
       });
   }
 

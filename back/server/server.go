@@ -4,14 +4,17 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
+
+	"../config"
 )
 
 // Server server
 var Server server
 
 func init() {
-	port := os.Getenv("PORT")
+	log.SetFlags(log.Lshortfile | log.Ldate)
+	log.SetPrefix("SERVER: ")
+	port := config.ServerPort
 	if len(port) < 1 {
 		log.Fatalln("could not start server - port not specified")
 	}
@@ -29,7 +32,9 @@ func (s server) Start() {
 	fmt.Printf("starting http server of %s port...\n", s.port)
 	h := http.NewServeMux()
 
-	h.Handle("/new/book/", newBookHandler())
+	h.Handle("/new/book", corsProvider(newBookHandler()))
+	h.Handle("/get/books", corsProvider(getBooksHandler()))
+	h.Handle("/update/book/info", corsProvider(updateBookInfoHandler()))
 	h.Handle("/translate", translateWordHandler())
 
 	log.Fatal(http.ListenAndServe(s.port, h))

@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
+
+	"../config"
 )
 
 // Server server
 var Server server
 
 func init() {
-	port := os.Getenv("PORT")
+	port := config.ServerPort
 	if len(port) < 1 {
 		log.Fatalln("could not start server - port not specified")
 	}

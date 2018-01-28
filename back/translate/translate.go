@@ -5,9 +5,9 @@ package translate
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
-	"os"
+
+	"../config"
 )
 
 var (
@@ -15,10 +15,7 @@ var (
 )
 
 func init() {
-	translateURL = os.Getenv("TRANSLATE_URL")
-	if len(translateURL) < 1 {
-		log.Fatalln("Could not translate, translate url not specified")
-	}
+	translateURL = config.TranslateURL
 	translateURL += "?client=gtx&sl=en&tl=ru&dt=t&q="
 }
 

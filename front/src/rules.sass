@@ -21,7 +21,10 @@
     opacity: 0.8
 
 .main-font
-  font-family: $mainFont
+  font-family: $mainFont, serif
+
+.title-font
+  font-family: 'Oswald', sans-serif
 
 .grid-centry
   display: grid
@@ -35,6 +38,13 @@
   flex-wrap: wrap
   justify-content: space-between
   height: fit-content
+
+@media screen and (min-width: $mdScreen)
+  .horizontal-list
+
+@media screen and (min-width: $lgScreen)
+  .horizontal-list
+    max-width: 60vw
 
 .horizontal-centry
   // justify-content: space-around

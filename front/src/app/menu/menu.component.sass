@@ -2,23 +2,35 @@
   background-color: #f0f1ec
   height: 100%
   width: 100%
-  display: flex
-  flex-direction: column
+  display: grid 
+  grid-template-areas: "add-book" "to-lib" "." "logout"
+  grid-template-rows: 10vh 10vh calc(100% - 30vh) 10vh
 
 .add_new
-  height: 10%
+  grid-area: add-book
+  box-sizing: border-box
   padding: 12px
 
-.list
-  height: 40%
+.to-lib 
+  grid-area: to-lib
+  box-sizing: border-box
   padding: 12px
 
-.exit
-  // align-self: flex-end
+.logout
+  grid-area: logout
+  box-sizing: border-box
+  padding: 12px
+
+.grid-vertically
+  display: grid
+  align-content: center
 
 .button
-  border: 1px solid #89f1f7 
-  padding: 0.5em
-  background-color: #b1f2f9
+  border-left: 2px solid black
+  border-right: 2px solid black
+  background-color: #c8faff
   text-align: center
   cursor: pointer
+  box-sizing: border-box
+  height: 100%
+  padding: 8px 0

@@ -1,8 +1,10 @@
 <div class="layout">
   <h1 class="main-font grid-centry">Library</h1>
-  <div class="books-list horizontal-list horizontal-centry">
-    <ng-container *ngFor="let book of books | async">
-      <app-book-unit [book]="book"></app-book-unit>
-    </ng-container>
+  <div class="grid-centry">
+    <div class="books-list horizontal-list horizontal-centry">
+      <ng-container *ngFor="let book of books | async">
+        <app-book-unit [book]="book"></app-book-unit>
+      </ng-container>
+    </div>
   </div>
 </div>

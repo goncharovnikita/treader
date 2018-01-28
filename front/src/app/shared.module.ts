@@ -15,6 +15,8 @@ import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/observable/timer';
 import 'rxjs/add/operator/take';
+import 'rxjs/add/operator/share';
+import 'rxjs/add/operator/filter';
 import { TranslateService } from './translate/service';
 import { AuthModule } from './auth/auth.module';
 import { MaterialModule } from './material.module';

@@ -36,8 +36,7 @@ declare type Book = {
     ID: string;
     Value: string;
   }[]
-  PageNumber: number;
-  TotalPages: number;
+  BookInfo
 }
 
 declare type AuthorType = {
@@ -47,4 +46,11 @@ declare type AuthorType = {
 	Nickname:   string
 	HomePage:   string
 	Email:      string
+}
+
+declare type BookInfo = {
+  LastPage: number;
+  LastTotalPages: number;
+  LastOpenedDate: string;
+  TotalOpenings: number;
 }

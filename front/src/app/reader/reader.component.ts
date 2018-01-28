@@ -11,7 +11,8 @@ import {
   NgZone,
   AfterViewInit,
   ChangeDetectorRef,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
+  OnDestroy
 } from '@angular/core';
 import { uniqueChars } from './unique-chars';
 import { Subject } from 'rxjs/Subject';
@@ -24,10 +25,11 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./reader.component.sass'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ReaderComponent implements OnInit, AfterViewInit {
-  book: BehaviorSubject<Book>;
+export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy {
+  book: Subject<Book> = new Subject();
   @ViewChild('contentEl') contentRef: ElementRef;
   @ViewChild('cWidthMeasureEl') cWidthMeasureEl: ElementRef;
+  sections: {P: Array<string>}[];
   currentPage = new BehaviorSubject(0);
   totalPages = new BehaviorSubject(0);
   uniqueChars = uniqueChars;
@@ -37,6 +39,7 @@ export class ReaderComponent implements OnInit, AfterViewInit {
   pHeight = 18;
   numbersOfParagraphsPerPage: number;
   subscribed = false;
+  bookInfo: BookInfo;
   /**
    * Constructor
    */
@@ -66,12 +69,15 @@ export class ReaderComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.book = new BehaviorSubject(null);
-    this.$route.data.map(v => v['selected_book']).subscribe(v => this.book.next(v));
+    this.book = this.$b.fetchSelectedBook();
     this.book.subscribe(b => {
+      console.log(b);
       if (!b) { return; }
-      console.log(b)
-      this.currentPage.next(this.book.getValue().PageNumber);
+      this.bookInfo = b.BookInfo;
+      this.bookInfo.LastOpenedDate = new Date().toDateString();
+      this.bookInfo.TotalOpenings++;
+      this.sections = b.Body.Sections;
+      this.currentPage.next(b.BookInfo.LastPage);
       if (this.contentRef.nativeElement.clientHeight > 0) {
         this.pages.next(this.parseBookContent(this.getCharWidthMap()));
         this.currentPageValue.next(this.pages.getValue()[this.currentPage.getValue()]);
@@ -80,6 +86,10 @@ export class ReaderComponent implements OnInit, AfterViewInit {
         this.subscriptions();
       }
     });
+  }
+
+  updateBookInfo() {
+    this.$b.pureUpdateBookInfo(this.bookInfo).subscribe(console.log);
   }
 
   ngAfterViewInit() {
@@ -106,9 +116,10 @@ export class ReaderComponent implements OnInit, AfterViewInit {
         console.log(p)
         if (p.length) {
           this.totalPages.next(p.length);
+          this.bookInfo.LastTotalPages = p.length;
         }
         if (this.contentRef.nativeElement.clientHeight > 0) {
-          this.$b.softUpdateBook(Object.assign(this.book.getValue(), { TotalPages: p.length }));
+          // this.$b.softUpdateBook(Object.assign(this.book.getValue(), { TotalPages: p.length }));
         }
         this.currentPageValue.next(this.pages.getValue()[this.currentPage.getValue()]);
       });
@@ -119,15 +130,16 @@ export class ReaderComponent implements OnInit, AfterViewInit {
         });
 
       this.currentPage.subscribe(p => {
-        console.log(p)
-        this.$b.softUpdateBook(Object.assign(this.book.getValue(), {PageNumber: p}));
+        console.log(p);
+        this.bookInfo.LastPage = p;
+        // this.$b.softUpdateBook(Object.assign(this.book.getValue(), {PageNumber: p}));
         this.currentPageValue.next(this.pages.getValue()[p]);
       });
 
       this.$s.triggerRefetchBookData.subscribe(v => {
         console.log('refetch book data');
         Observable.timer(50).subscribe(_ => {
-          this.pages.next(this.parseBookContent(this.getCharWidthMap()))
+          this.pages.next(this.parseBookContent(this.getCharWidthMap()));
         });
       });
     });
@@ -156,7 +168,7 @@ export class ReaderComponent implements OnInit, AfterViewInit {
     if (this.cWidthMeasureEl.nativeElement.children[0]) {
       pHeight = this.cWidthMeasureEl.nativeElement.children[0].offsetHeight;
     }
-    const remainingArray = this.getFlatContent(this.book.getValue().Body.Sections);
+    const remainingArray = this.getFlatContent(this.sections);
     for (let i = 0; i < remainingArray.length; i++) {
     // for (let i = 0; i < 80; i++) {
       if (restHeight - pHeight <= 0) {
@@ -216,5 +228,12 @@ export class ReaderComponent implements OnInit, AfterViewInit {
       result.push(...i.P);
     }
     return result;
+  }
+
+  /**
+   * OnDestroy
+   */
+  ngOnDestroy() {
+    this.updateBookInfo();
   }
 }

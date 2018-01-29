@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"../config"
 )
 
 // Server server
 var Server server
+var infoLogger = log.New(os.Stdout, "SERVER: ", log.Ltime|log.Ldate)
 
 func init() {
 	log.SetFlags(log.Lshortfile | log.Ldate)

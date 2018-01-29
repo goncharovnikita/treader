@@ -12,6 +12,7 @@ export class BooksService {
   private readonly NEW_BOOK_URL = '/new/book';
   private readonly GET_BOOKS_URL = '/get/books';
   private readonly UPDATE_BOOK_INFO_URL = '/update/book/info';
+  private _initBooksFetched = new BehaviorSubject(false);
   private books = new BehaviorSubject<{[key: string]: Book}>(null);
   private selectedBook = new BehaviorSubject<Book>(JSON.parse(localStorage.getItem(this.SELECTED_BOOK)));
 
@@ -37,7 +38,7 @@ export class BooksService {
     const book = books[b.Description.DocumentInfo.ID];
     if (!book) { return; }
     if (b.BookInfo.LastTotalPages !== book.LastTotalPages && book.LastTotalPages) {
-      this.updateCurrentPage(b, book.LastTotalPages);
+      this.updateCurrentPage(b.BookInfo, book.LastTotalPages);
     }
     books[b.Description.DocumentInfo.ID] = b;
     this.books.next(books);
@@ -51,7 +52,7 @@ export class BooksService {
     const book = books[b.Description.DocumentInfo.ID];
     if (!book) { return; }
     if (b.BookInfo.LastTotalPages !== book.LastTotalPages && book.LastTotalPages) {
-      this.updateCurrentPage(b, book.LastTotalPages);
+      this.updateCurrentPage(b.BookInfo, book.LastTotalPages);
     }
     books[b.Description.DocumentInfo.ID] = b;
     this.books.next(books);
@@ -59,29 +60,17 @@ export class BooksService {
     localStorage.setItem(this.SELECTED_BOOK, JSON.stringify(b));
   }
 
-  updateCurrentPage(b: Book, totalPages: number): void {
-    const newTotal = b.BookInfo.LastTotalPages;
-    const diff = totalPages / newTotal;
-    b.BookInfo.LastPage = Math.floor(b.BookInfo.LastPage / diff);
+  updateCurrentPage(b: BookInfo, newTotal: number): number {
+    const totalPages = b.LastTotalPages;
+    console.log(`last: ${totalPages} new: ${newTotal} lastPage: ${b.LastPage}`)
+    const diff = parseFloat((newTotal / totalPages).toFixed(2));
+    return Math.floor(b.LastPage * diff);
   }
 
   fetchBooks() {
-    return this.books;
-  }
-
-  pureFetchBooks() {
-    return this.$auth.get(this.$url + this.GET_BOOKS_URL)
-      .catch(e => Observable.of(null)).map(v => {
-        if (v) {
-          const result = {};
-          for (let i = 0; i < Object.keys(v).length; i++) {
-            const a = v[Object.keys(v)[i]];
-            a['Book']['BookInfo'] = a['BookInfo'];
-            result[Object.keys(v)[i]] = a['Book'];
-          }
-          return result;
-        }
-      });
+    return this._initBooksFetched.filter(v => v === true).switchMap(v => {
+      return this.books;
+    });
   }
 
   pureUpdateBookInfo(i: BookInfo) {
@@ -135,7 +124,6 @@ export class BooksService {
         const result = {};
         for (let i = 0; i < Object.keys(v).length; i++) {
           const a = v[Object.keys(v)[i]];
-          console.log(a)
           a['Book']['BookInfo'] = a['BookInfo'];
           result[Object.keys(v)[i]] = a['Book'];
         }
@@ -146,14 +134,7 @@ export class BooksService {
         return;
       }
       this.books.next(r);
+      this._initBooksFetched.next(true);
     });
   }
-
-  // editBook(b: Book) {
-  //   const i = this.books.getValue().indexOf(b);
-  //   if (i === -1) {
-  //     return;
-  //   }
-  //   //
-  // }
 }

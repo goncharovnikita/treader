@@ -22,7 +22,15 @@
   padding: 4px
 
 .content
+  padding: 0 12px
   grid-area: content
   overflow-y: hidden
   display: grid
-  justify-content: center
+  // justify-content: center
+
+@media screen and (min-width: $mdScreen)
+  .content
+    padding: 0 13vw 0 27vw
+
+  .content-unwrap
+    padding: 0 12px!important

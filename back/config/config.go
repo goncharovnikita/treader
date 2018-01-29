@@ -14,6 +14,10 @@ var (
 	DBURL string
 	// DBName is database name
 	DBName string
+	// DBUsername is username to authenticate in database
+	DBUsername string
+	//DBPWD is user's password to authenticate in database
+	DBPWD string
 	// TranslateURL is url, which be used for translate queries
 	TranslateURL string
 )
@@ -23,6 +27,8 @@ func init() {
 	DBURL = os.Getenv("DBURL")
 	TranslateURL = os.Getenv("TRANSLATE_URL")
 	DBName = os.Getenv("DBName")
+	DBPWD = os.Getenv("DBPWD")
+	DBUsername = os.Getenv("DBUsername")
 	errs := make([]string, 0)
 	if len(ServerPort) < 1 {
 		errs = append(errs, "server port not specified")
@@ -35,6 +41,12 @@ func init() {
 	}
 	if len(DBName) < 1 {
 		errs = append(errs, "database name not specified")
+	}
+	if len(DBPWD) < 1 {
+		errs = append(errs, "database password not specified")
+	}
+	if len(DBUsername) < 1 {
+		errs = append(errs, "database username not specified")
 	}
 
 	if len(errs) > 0 {

@@ -53,4 +53,5 @@ declare type BookInfo = {
   LastTotalPages: number;
   LastOpenedDate: string;
   TotalOpenings: number;
+  LastReadWords: number;
 }

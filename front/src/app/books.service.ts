@@ -1,5 +1,4 @@
 import { AuthService } from './auth/auth.service';
-import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Injectable, Inject } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
@@ -17,7 +16,6 @@ export class BooksService {
   private selectedBook = new BehaviorSubject<Book>(JSON.parse(localStorage.getItem(this.SELECTED_BOOK)));
 
   constructor(
-    private $h: HttpClient,
     private $auth: AuthService
   ) {
     this._fetchBooksFromServer();
@@ -27,7 +25,7 @@ export class BooksService {
     return this.$auth.fetchAuthState()
       .switchMap(user => {
         const options = {headers: {'user-id': user.uid}};
-        return this.$h.post(this.NEW_BOOK_URL, body, options)
+        return this.$auth.post(this.NEW_BOOK_URL, body, options)
           .catch(() => Observable.of(null));
       });
   }
@@ -37,7 +35,7 @@ export class BooksService {
     const book = books[b.Description.DocumentInfo.ID];
     if (!book) { return; }
     if (b.BookInfo.LastTotalPages !== book.LastTotalPages && book.LastTotalPages) {
-      this.updateCurrentPage(b.BookInfo, book.LastTotalPages);
+      // this.updateCurrentPage(b.BookInfo, book.LastTotalPages);
     }
     books[b.Description.DocumentInfo.ID] = b;
     this.books.next(books);
@@ -51,19 +49,12 @@ export class BooksService {
     const book = books[b.Description.DocumentInfo.ID];
     if (!book) { return; }
     if (b.BookInfo.LastTotalPages !== book.LastTotalPages && book.LastTotalPages) {
-      this.updateCurrentPage(b.BookInfo, book.LastTotalPages);
+      // this.updateCurrentPage(b.BookInfo, book.LastTotalPages);
     }
     books[b.Description.DocumentInfo.ID] = b;
     this.books.next(books);
     localStorage.setItem(this.BOOKS_STORAGE, JSON.stringify(books));
     localStorage.setItem(this.SELECTED_BOOK, JSON.stringify(b));
-  }
-
-  updateCurrentPage(b: BookInfo, newTotal: number): number {
-    const totalPages = b.LastTotalPages;
-    console.log(`last: ${totalPages} new: ${newTotal} lastPage: ${b.LastPage}`);
-    const diff = parseFloat((newTotal / totalPages).toFixed(2));
-    return Math.floor(b.LastPage * diff);
   }
 
   fetchBooks() {

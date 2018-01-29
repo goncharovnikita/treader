@@ -89,7 +89,7 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   updateBookInfo() {
-    this.$b.pureUpdateBookInfo(this.bookInfo).subscribe(console.log);
+    this.$b.pureUpdateBookInfo(this.bookInfo).subscribe(() => {});
   }
 
   ngAfterViewInit() {
@@ -117,6 +117,7 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy {
         if (p.length) {
           this.totalPages.next(p.length);
           this.bookInfo.LastTotalPages = p.length;
+          this.updateBookInfo();
         }
         if (this.contentRef.nativeElement.clientHeight > 0) {
           // this.$b.softUpdateBook(Object.assign(this.book.getValue(), { TotalPages: p.length }));
@@ -131,6 +132,7 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy {
 
       this.currentPage.subscribe(p => {
         console.log(p);
+        this.updateBookInfo();
         this.bookInfo.LastPage = p;
         // this.$b.softUpdateBook(Object.assign(this.book.getValue(), {PageNumber: p}));
         this.currentPageValue.next(this.pages.getValue()[p]);
@@ -163,14 +165,18 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy {
     if (restHeight < 1) { return [[]]; }
     const result = [];
     let currPage = [];
-    const width = this.contentRef.nativeElement.clientWidth - 9;
+    let width = this.contentRef.nativeElement.clientWidth - 21;
+    if (width > 579) {
+      console.log((((this.contentRef.nativeElement.clientWidth / 100) * 40) + 9))
+      width -= (((this.contentRef.nativeElement.clientWidth / 100) * 40) + 9);
+    }
     let pHeight = 18;
     if (this.cWidthMeasureEl.nativeElement.children[0]) {
       pHeight = this.cWidthMeasureEl.nativeElement.children[0].offsetHeight;
     }
     const remainingArray = this.getFlatContent(this.sections);
     for (let i = 0; i < remainingArray.length; i++) {
-    // for (let i = 0; i < 80; i++) {
+    // for (let i = 0; i < 30; i++) {
       if (restHeight - pHeight <= 0) {
         result.push(currPage);
         currPage = [];
@@ -194,7 +200,7 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy {
           }
           currPage.push(w.slice(prevIndex, j - 1).join(' '));
           restHeight -= pHeight;
-          prevIndex = j;
+          prevIndex = j - 1;
           cutIndex = j - 1;
           wv = width;
         } else {

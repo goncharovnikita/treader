@@ -13,4 +13,5 @@ type UserBook struct {
 	LastTotalPages int    `json:"LastTotalPages" bson:"last_total_pages"`
 	LastOpenedDate string `json:"LastOpenedDate" bson:"last_opened_date"`
 	TotalOpenings  int    `json:"TotalOpenings" bson:"total_openings"`
+	LastReadWords  int    `json:"LastReadWords" bson:"last_read_words"`
 }

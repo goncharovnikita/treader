@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -19,7 +18,7 @@ func getBooksHandler() http.Handler {
 			if responseStatus != 200 {
 				rw.WriteHeader(responseStatus)
 			}
-			fmt.Printf("%s %s %d %s\n", r.URL, r.Method, responseStatus, time.Since(start))
+			infoLogger.Printf("%s %s %d %s\n", r.URL, r.Method, responseStatus, time.Since(start))
 		}()
 		if r.Method == http.MethodOptions {
 			rw.Header().Add("Access-Control-Allow-Headers", "user-id")
@@ -90,7 +89,7 @@ func updateBookInfoHandler() http.Handler {
 			if responseStatus != 200 {
 				rw.WriteHeader(responseStatus)
 			}
-			fmt.Printf("%s %s %d %s\n", r.URL, r.Method, responseStatus, time.Since(start))
+			infoLogger.Printf("%s %s %d %s\n", r.URL, r.Method, responseStatus, time.Since(start))
 		}()
 		if r.Method == http.MethodOptions {
 			rw.Header().Add("Access-Control-Allow-Headers", "content-type, user-id")

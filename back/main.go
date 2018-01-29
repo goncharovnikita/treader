@@ -15,6 +15,6 @@ func init() {
 func main() {
 	s := server.Server
 
-	db.Connect(config.DBURL, config.DBName)
+	db.Connect(config.DBURL, config.DBName, config.DBUsername, config.DBPWD)
 	s.Start()
 }

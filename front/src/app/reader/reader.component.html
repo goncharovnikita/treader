@@ -3,7 +3,7 @@
     <h3 class="title">{{ bookTitle | async }}</h3>
     <h4 class="creds">{{ author | async }}</h4>
   </div>
-  <div class="content" #contentEl >
+  <div class="content" #contentEl [ngClass]="{'content-unwrap': menuOpened | async}" >
     <app-reader-renderer [sheet]="currentPageValue"></app-reader-renderer>
     <!-- <ng-container *ngFor="let w of (currentPageValue | async)">
       <div [innerHTML]="w" >

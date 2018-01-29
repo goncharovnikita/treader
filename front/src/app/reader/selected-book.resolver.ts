@@ -9,7 +9,7 @@ export class SelectedBookResolver implements Resolve<Book> {
   constructor(private $s: BooksService) {}
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Book> {
-    return this.$s.pureFetchBooks()
+    return this.$s.fetchBooks()
       .map(b => {
         const book: Book = b[route.params['book_id']];
         console.log(book);

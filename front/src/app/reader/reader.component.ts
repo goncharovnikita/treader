@@ -12,12 +12,14 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   ChangeDetectionStrategy,
-  OnDestroy
+  OnDestroy,
+  DoCheck
 } from '@angular/core';
 import { uniqueChars } from './unique-chars';
 import { Subject } from 'rxjs/Subject';
 import { AppService } from '../app.service';
 import { ActivatedRoute } from '@angular/router';
+import { isNullOrUndefined } from 'util';
 
 @Component({
   selector: 'app-reader',
@@ -25,17 +27,17 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./reader.component.sass'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy {
+export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoCheck {
   book: Subject<Book> = new Subject();
   @ViewChild('contentEl') contentRef: ElementRef;
   @ViewChild('cWidthMeasureEl') cWidthMeasureEl: ElementRef;
   sections: {P: Array<string>}[];
-  currentPage = new BehaviorSubject(0);
-  totalPages = new BehaviorSubject(0);
+  currentPage = new BehaviorSubject(null);
+  totalPages = new BehaviorSubject(null);
   uniqueChars = uniqueChars;
-  currentPageValue = new BehaviorSubject([]);
+  currentPageValue = new Subject();
   ready = new Subject();
-  pages = new BehaviorSubject([[]]);
+  pages = new BehaviorSubject([]);
   pHeight = 18;
   numbersOfParagraphsPerPage: number;
   subscribed = false;
@@ -68,19 +70,22 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  get menuOpened(): BehaviorSubject<boolean> {
+    return this.$s.triggerRefetchBookData;
+  }
+
   ngOnInit() {
     this.book = this.$b.fetchSelectedBook();
     this.book.subscribe(b => {
-      console.log(b);
       if (!b) { return; }
       this.bookInfo = b.BookInfo;
+      console.log(this.bookInfo.LastPage)
       this.bookInfo.LastOpenedDate = new Date().toDateString();
       this.bookInfo.TotalOpenings++;
       this.sections = b.Body.Sections;
-      this.currentPage.next(b.BookInfo.LastPage);
-      if (this.contentRef.nativeElement.clientHeight > 0) {
+      // this.currentPage.next(b.BookInfo.LastPage);
+      if (this.contentRef.nativeElement.clientHeight > 600) {
         this.pages.next(this.parseBookContent(this.getCharWidthMap()));
-        this.currentPageValue.next(this.pages.getValue()[this.currentPage.getValue()]);
       }
       if (!this.subscribed) {
         this.subscriptions();
@@ -93,7 +98,7 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    this.ready.next(true);
+    setTimeout(() => this.ready.next(true));
   }
 
   getCharWidthMap(): {} {
@@ -104,25 +109,24 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy {
     return result;
   }
 
+  ngDoCheck() {}
+
   /**
    * Subscribe on various events
    */
   subscriptions() {
     this.subscribed = true;
-    console.log('subscriptions');
     this.ready.subscribe(() => {
-      console.log('view ready');
       this.pages.subscribe(p => {
-        console.log(p)
-        if (p.length) {
+        if (p.length > 0) {
           this.totalPages.next(p.length);
+          this.currentPage.next(this.$b.updateCurrentPage(this.bookInfo, p.length));
           this.bookInfo.LastTotalPages = p.length;
           this.updateBookInfo();
         }
         if (this.contentRef.nativeElement.clientHeight > 0) {
           // this.$b.softUpdateBook(Object.assign(this.book.getValue(), { TotalPages: p.length }));
         }
-        this.currentPageValue.next(this.pages.getValue()[this.currentPage.getValue()]);
       });
 
       Observable.fromEvent(window, 'resize')
@@ -131,18 +135,18 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
       this.currentPage.subscribe(p => {
-        console.log(p);
-        this.updateBookInfo();
+        if (isNullOrUndefined(p)) { return; }
         this.bookInfo.LastPage = p;
-        // this.$b.softUpdateBook(Object.assign(this.book.getValue(), {PageNumber: p}));
         this.currentPageValue.next(this.pages.getValue()[p]);
+        this.updateBookInfo();
       });
 
       this.$s.triggerRefetchBookData.subscribe(v => {
-        console.log('refetch book data');
-        Observable.timer(50).subscribe(_ => {
-          this.pages.next(this.parseBookContent(this.getCharWidthMap()));
-        });
+        if (this.contentRef.nativeElement.clientWidth < 600 && !v) {
+          Observable.timer(50).subscribe(_ => {
+            this.pages.next(this.parseBookContent(this.getCharWidthMap()));
+          });
+        }
       });
     });
   }
@@ -160,15 +164,17 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   parseBookContent(charWidthMap: {}) {
-    console.log('Parse book content');
     let restHeight = this.contentRef.nativeElement.clientHeight - 100;
     if (restHeight < 1) { return [[]]; }
     const result = [];
     let currPage = [];
-    let width = this.contentRef.nativeElement.clientWidth - 21;
+    let width = this.contentRef.nativeElement.clientWidth;
     if (width > 579) {
-      console.log((((this.contentRef.nativeElement.clientWidth / 100) * 40) + 9))
-      width -= (((this.contentRef.nativeElement.clientWidth / 100) * 40) + 9);
+      if (!this.menuOpened.getValue()) {
+        width -= (((this.contentRef.nativeElement.clientWidth / 100) * 40) + 9);
+      }
+    } else {
+      width -= 21;
     }
     let pHeight = 18;
     if (this.cWidthMeasureEl.nativeElement.children[0]) {
@@ -190,7 +196,6 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy {
       for (let j = 0; j < w.length; j++) {
         const cw = w[j].split('').reduce((acc, curr) => acc + (charWidthMap[curr] ? charWidthMap[curr] : 8), 0) + 8;
         if (cw === NaN) {
-          console.log(w[j]);
         }
         if (wv - cw <= 4) {
           if (restHeight - pHeight <= 0) {

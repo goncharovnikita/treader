@@ -17,6 +17,7 @@ import 'rxjs/add/observable/timer';
 import 'rxjs/add/operator/take';
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/filter';
+import 'rxjs/add/operator/pairwise';
 import { TranslateService } from './translate/service';
 import { AuthModule } from './auth/auth.module';
 import { MaterialModule } from './material.module';

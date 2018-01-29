@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"../db"
+	"../db/models"
 )
 
 // handle /get/books
@@ -29,8 +30,8 @@ func getBooksHandler() http.Handler {
 				user     db.User
 				response []byte
 				result   = make(map[string]struct {
-					Book     db.Book     `json:"Book"`
-					BookInfo db.UserBook `json:"BookInfo"`
+					Book     db.Book         `json:"Book"`
+					BookInfo models.UserBook `json:"BookInfo"`
 				})
 			)
 			userID := r.Header.Get("user-id")
@@ -58,8 +59,8 @@ func getBooksHandler() http.Handler {
 					continue _loop
 				}
 				result[b.ID] = struct {
-					Book     db.Book     `json:"Book"`
-					BookInfo db.UserBook `json:"BookInfo"`
+					Book     db.Book         `json:"Book"`
+					BookInfo models.UserBook `json:"BookInfo"`
 				}{
 					Book:     b,
 					BookInfo: v,
@@ -99,7 +100,7 @@ func updateBookInfoHandler() http.Handler {
 			var (
 				err    error
 				user   db.User
-				params db.UserBook
+				params models.UserBook
 			)
 
 			userID := r.Header.Get("user-id")

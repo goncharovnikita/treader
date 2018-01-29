@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"../config"
+	"./handlers"
 )
 
 // Server server
@@ -38,6 +39,7 @@ func (s server) Start() {
 	h.Handle("/get/books", corsProvider(getBooksHandler()))
 	h.Handle("/update/book/info", corsProvider(updateBookInfoHandler()))
 	h.Handle("/translate", translateWordHandler())
+	h.Handle("/user/", corsProvider(http.StripPrefix("/user", handlers.Handle())))
 
 	log.Fatal(http.ListenAndServe(s.port, h))
 }

@@ -126,7 +126,7 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
       this.pages.subscribe(p => {
         if (p.length > 0) {
           this.totalPages.next(p.length);
-          this.currentPage.next(this.$b.updateCurrentPage(this.bookInfo, p.length));
+          // this.currentPage.next(this.$b.updateCurrentPage(this.bookInfo, p.length));
           this.bookInfo.LastTotalPages = p.length;
           this.updateBookInfo();
         }
@@ -143,6 +143,8 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
       this.currentPage.subscribe(p => {
         if (isNullOrUndefined(p)) { return; }
         this.bookInfo.LastPage = p;
+        this.bookInfo.LastReadWords = this.pages.getValue()
+          .slice(0, p).reduce((a, b) => a + b.reduce((i, j) => i + j.split(' ').length, 0), 0) + 1;
         this.currentPageValue.next(this.pages.getValue()[p]);
         this.updateBookInfo();
       });
@@ -181,6 +183,9 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
     let restHeight = this.contentRef.nativeElement.clientHeight - 100;
     if (restHeight < 1) { return [[]]; }
     const result = [];
+    let currentPage = 0;
+    let currentWord = 0;
+    let pageAdded = false;
     let currPage = [];
     let width = this.contentRef.nativeElement.clientWidth;
     if (width > 579) {
@@ -225,6 +230,7 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
         } else {
           wv -= cw;
         }
+        currentWord++;
       }
       if (restHeight - pHeight <= 0) {
         result.push(currPage);
@@ -233,6 +239,12 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
       }
       restHeight -= pHeight;
       currPage.push(w.slice(cutIndex).join(' '));
+      if (currentWord >= this.bookInfo.LastReadWords && !pageAdded) {
+        console.log(this.bookInfo.LastReadWords)
+        console.log(result)
+        currentPage = result.length;
+        pageAdded = true;
+      }
     }
 
     if (currPage.length > 0) {
@@ -244,6 +256,7 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
       }
       result.push(rest);
     }
+    setTimeout(() => this.currentPage.next(currentPage));
     return result;
   }
 

@@ -143,6 +143,9 @@ func updateBookInfoHandler() http.Handler {
 			if params.TotalOpenings > 0 {
 				newBook.TotalOpenings = params.TotalOpenings
 			}
+			if params.LastReadWords > 0 {
+				newBook.LastReadWords = params.LastReadWords
+			}
 
 			user.Books[params.ID] = newBook
 

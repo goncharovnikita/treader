@@ -22,6 +22,7 @@ import { TranslateService } from './translate/service';
 import { AuthModule } from './auth/auth.module';
 import { MaterialModule } from './material.module';
 import { HelloPageGuard } from './hello-page/guard';
+import { UserService } from './user/user.service';
 
 @NgModule({
   imports: [
@@ -42,7 +43,8 @@ import { HelloPageGuard } from './hello-page/guard';
     TranslateService,
     HttpService,
     BooksService,
-    HelloPageGuard
+    HelloPageGuard,
+    UserService
   ]
 })
 export class SharedModule {

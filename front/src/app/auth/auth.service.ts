@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { AngularFireAuth } from 'angularfire2/auth';
 import * as firebase from 'firebase/app';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -13,7 +13,8 @@ export class AuthService {
   constructor(
     private $fireAuth: AngularFireAuth,
     private $router: Router,
-    private $http: HttpClient
+    private $http: HttpClient,
+    @Inject('BASE_URL') private $url
   ) {}
 
   fetchAuthState(): Observable<User> {
@@ -47,7 +48,7 @@ export class AuthService {
     return this.fetchAuthState()
       .switchMap(user => {
         options = Object.assign(options, {headers: {'user-id': user.uid}});
-        return this.$http.get(url, options);
+        return this.$http.get(this.$url + url, options);
       });
   }
 
@@ -55,7 +56,7 @@ export class AuthService {
     return this.fetchAuthState().filter(v => !isNullOrUndefined(v))
       .switchMap(user => {
         options = Object.assign(options, {headers: {'user-id': user.uid}});
-        return this.$http.post(url, body, options);
+        return this.$http.post(this.$url + url, body, options);
       });
   }
 }

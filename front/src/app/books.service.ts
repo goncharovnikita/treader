@@ -18,8 +18,7 @@ export class BooksService {
 
   constructor(
     private $h: HttpClient,
-    private $auth: AuthService,
-    @Inject('BASE_URL') private $url: string
+    private $auth: AuthService
   ) {
     this._fetchBooksFromServer();
   }
@@ -28,7 +27,7 @@ export class BooksService {
     return this.$auth.fetchAuthState()
       .switchMap(user => {
         const options = {headers: {'user-id': user.uid}};
-        return this.$h.post(this.$url + this.NEW_BOOK_URL, body, options)
+        return this.$h.post(this.NEW_BOOK_URL, body, options)
           .catch(() => Observable.of(null));
       });
   }
@@ -62,7 +61,7 @@ export class BooksService {
 
   updateCurrentPage(b: BookInfo, newTotal: number): number {
     const totalPages = b.LastTotalPages;
-    console.log(`last: ${totalPages} new: ${newTotal} lastPage: ${b.LastPage}`)
+    console.log(`last: ${totalPages} new: ${newTotal} lastPage: ${b.LastPage}`);
     const diff = parseFloat((newTotal / totalPages).toFixed(2));
     return Math.floor(b.LastPage * diff);
   }
@@ -74,7 +73,7 @@ export class BooksService {
   }
 
   pureUpdateBookInfo(i: BookInfo) {
-    return this.$auth.post(this.$url + this.UPDATE_BOOK_INFO_URL, i);
+    return this.$auth.post(this.UPDATE_BOOK_INFO_URL, i);
   }
 
   fetchSelectedBook() {
@@ -119,7 +118,7 @@ export class BooksService {
   }
 
   private _fetchBooksFromServer() {
-    this.$auth.get(this.$url + this.GET_BOOKS_URL).catch(e => Observable.of(null)).map(v => {
+    this.$auth.get(this.GET_BOOKS_URL).catch(e => Observable.of(null)).map(v => {
       if (v) {
         const result = {};
         for (let i = 0; i < Object.keys(v).length; i++) {

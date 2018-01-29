@@ -13,6 +13,7 @@ import (
 	"github.com/centrypoint/fb2"
 
 	"../db"
+	"../db/models"
 	"../reader"
 	"../translate"
 )
@@ -79,7 +80,7 @@ func newBookHandler() http.Handler {
 				}
 				log.Println(e)
 			}
-			var ub db.UserBook
+			var ub models.UserBook
 			ub.ID = bookInfo.Description.DocumentInfo.ID
 			if e = db.GetOne(userID, &user); e != nil {
 				if e.Error() == "not found" {

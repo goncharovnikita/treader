@@ -20,6 +20,7 @@ import { Subject } from 'rxjs/Subject';
 import { AppService } from '../app.service';
 import { ActivatedRoute } from '@angular/router';
 import { isNullOrUndefined } from 'util';
+import { UserService } from '../user/user.service';
 
 @Component({
   selector: 'app-reader',
@@ -35,13 +36,14 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
   currentPage = new BehaviorSubject(null);
   totalPages = new BehaviorSubject(null);
   uniqueChars = uniqueChars;
-  currentPageValue = new Subject();
+  currentPageValue = new Subject<string[]>();
   ready = new Subject();
   pages = new BehaviorSubject([]);
   pHeight = 18;
   numbersOfParagraphsPerPage: number;
   subscribed = false;
   bookInfo: BookInfo;
+  lexicon: {lang: string, words: string[]} = {lang: '', words: []};
   /**
    * Constructor
    */
@@ -51,7 +53,8 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
     private $cdr: ChangeDetectorRef,
     private $b: BooksService,
     private $app: AppService,
-    private $route: ActivatedRoute
+    private $route: ActivatedRoute,
+    private $us: UserService
   ) {}
 
   get bookTitle(): Observable<string> {
@@ -78,12 +81,11 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
     this.book = this.$b.fetchSelectedBook();
     this.book.subscribe(b => {
       if (!b) { return; }
+      this.lexicon.lang = b.Description.TitleInfo.Lang;
       this.bookInfo = b.BookInfo;
-      console.log(this.bookInfo.LastPage)
       this.bookInfo.LastOpenedDate = new Date().toDateString();
       this.bookInfo.TotalOpenings++;
       this.sections = b.Body.Sections;
-      // this.currentPage.next(b.BookInfo.LastPage);
       if (this.contentRef.nativeElement.clientHeight > 600) {
         this.pages.next(this.parseBookContent(this.getCharWidthMap()));
       }
@@ -91,6 +93,10 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
         this.subscriptions();
       }
     });
+  }
+
+  updateLexicon() {
+    this.$us.updateLexicon(this.lexicon);
   }
 
   updateBookInfo() {
@@ -141,6 +147,13 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
         this.updateBookInfo();
       });
 
+      this.currentPageValue.subscribe(v => {
+        if (v) {
+          this.lexicon.words = v.map(k => k.split(' ').map(l => l.replace(/\"|\:|\;|\,|\.|\?|\!|\(|\)/g, '')))
+            .reduce((a, b) => [...a, ...b], []);
+        }
+      });
+
       this.$s.triggerRefetchBookData.subscribe(v => {
         if (this.contentRef.nativeElement.clientWidth < 600 && !v) {
           Observable.timer(50).subscribe(_ => {
@@ -151,7 +164,8 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
     });
   }
 
-  nextPage() {
+  nextPage = () => {
+    this.updateLexicon();
     this.currentPage.next(this.currentPage.getValue() + 1);
   }
 

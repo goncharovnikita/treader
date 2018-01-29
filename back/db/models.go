@@ -1,11 +1,13 @@
 package db
 
 import (
-	"github.com/centrypoint/fb2"
+	"./models"
 )
 
+// **** BOOK ****
+
 // Book represents book unit with additional information
-type Book fb2.FB2
+type Book models.Book
 
 // GetCollectionName implements Collectioner for Book model
 func (b Book) GetCollectionName() string {
@@ -22,20 +24,10 @@ func (b *Book) GetModel() interface{} {
 	return b
 }
 
-// User model, containing user info and related books
-type User struct {
-	ID    string              `json:"id" bson:"_id"`
-	Books map[string]UserBook `json:"books" bson:"books"`
-}
+/**** User ****/
 
-// UserBook type
-type UserBook struct {
-	ID             string `json:"ID" bson:"id"`
-	LastPage       int    `json:"LastPage" bson:"last_page"`
-	LastTotalPages int    `json:"LastTotalPages" bson:"last_total_pages"`
-	LastOpenedDate string `json:"LastOpenedDate" bson:"last_opened_date"`
-	TotalOpenings  int    `json:"TotalOpenings" bson:"total_openings"`
-}
+// User model, containing user info and related books
+type User models.User
 
 // GetCollectionName imlements Collectioner for User model
 func (u User) GetCollectionName() string {
@@ -49,5 +41,30 @@ func (u *User) Modificate() {
 
 // GetModel implements Modeller for Book model
 func (u *User) GetModel() interface{} {
+	return u
+}
+
+// **** UserBook ****
+
+// UserBook type
+// type UserBook models.UserBook
+
+// **** UserStatistic ****
+
+// UserStatistic type
+type UserStatistic models.UserStatistic
+
+// GetCollectionName implements Collectioner for UserStatistic model
+func (u UserStatistic) GetCollectionName() string {
+	return "user-statistics"
+}
+
+// Modificate implements Modificatior for UserStatistic model
+func (u *UserStatistic) Modificate() {
+
+}
+
+// GetModel implements Modeller for UserStatistic model
+func (u *UserStatistic) GetModel() interface{} {
 	return u
 }

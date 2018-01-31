@@ -2,7 +2,7 @@ import { AuthService } from './../auth/auth.service';
 import { Router } from '@angular/router';
 import { MainService } from './../main/main.service';
 import { BooksService } from './../books.service';
-import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef, Input } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 @Component({
@@ -12,6 +12,7 @@ import { Observable } from 'rxjs/Observable';
 })
 export class MenuComponent implements OnInit {
   books: Observable<Array<Book>>;
+  @Input() expanded: Observable<boolean>;
   @ViewChild('fileInput') fileInputRef: ElementRef;
   constructor(
     private $s: MainService,

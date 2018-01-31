@@ -15,7 +15,7 @@
       TReader
     </div>
   </div>
-  <div class="menu" [ngClass]="{'menu-hidden': !(menuExpanded | async)}" >
+  <div [@state]="state" class="menu" [ngClass]="{'menu-hidden': !(menuExpanded | async)}" >
     <app-menu></app-menu>
   </div>
   <div class="content" [ngClass]="{'content-hidden': menuExpanded | async}">

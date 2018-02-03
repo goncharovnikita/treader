@@ -3,7 +3,9 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"net/url"
 	"os"
+	"time"
 )
 
 func init() {
@@ -50,5 +52,19 @@ func conmap(v map[string]map[string]string, b []string) map[string]string {
 	}
 
 	return result
+}
 
+// requests logger, should be deferred
+func reqLogger(rw *http.ResponseWriter, responseStatus *int, URL *url.URL, Method string, start *time.Time) {
+	if *responseStatus != 200 {
+		(*rw).WriteHeader(*responseStatus)
+	}
+	infoLogger.Printf("%s %s %d %s\n", Method, URL, *responseStatus, time.Since(*start))
+}
+
+// err logger, should be deffered
+func errLogger(e *error) {
+	if e != nil {
+		log.Println(*e)
+	}
 }

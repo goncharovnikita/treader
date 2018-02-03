@@ -1,7 +1,6 @@
 <div class="menu">
   <div class="add_new grid-vertically">
-    <div class="button is-button" (click)="fileInputRef.nativeElement.click()" >Add book</div>
-    <input class="hidden" type="file" #fileInput (change)="onFileChange()" >
+    <div class="button is-button" (click)="addBook()" >Add book</div>
   </div>
   <div class="to-lib grid-vertically">
     <div class="button is-button" (click)="toLib()">
@@ -12,3 +11,7 @@
     <div class="is-button button" (click)="logout()">Logout</div>
   </div>
 </div>
+
+<ng-container *ngIf="addNewViewed">
+  <app-add-book (kill)="killAddBook($event)" (bookLoaded)="loadBook($event)"></app-add-book>
+</ng-container>

@@ -1,0 +1,47 @@
+<app-modal (killClicked)="killFromModal($event)">
+  <ng-container *ngIf="!(bookAdded | async); else bookAddedEl">
+    <div class="layout">
+      <h3 class="title">Add new book</h3>
+      <ng-container *ngIf="!(book | async); else bookInfo">
+        <div class="add-book-placeholder">
+          <div class="box" (click)="fileInput.click()">
+            <mat-icon>add</mat-icon>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #bookInfo>
+        <ng-container *ngIf="loadPercent < 100; else bookInfoExpanded">
+          <div class="progresser">
+            <mat-progress-spinner [strokeWidth]="2" [value]="loadPercent"></mat-progress-spinner>
+          </div>
+        </ng-container>
+        <ng-template #bookInfoExpanded>
+          <div class="book-info">
+            <div class="title">
+              <h3>{{ getTitle() }}</h3>
+            </div>
+            <div class="author">
+              <h4 class="align-center">{{ getAuthor() }}</h4>
+            </div>
+            <div class="cover">
+              <img [src]="getCoverpage()" alt="">
+            </div>
+            <div class="submit" *ngIf="!bookAdding">
+              <div (click)="addBook()" class="is-button button">Add book</div>
+            </div>
+          </div>
+        </ng-template>
+      </ng-template>
+    </div>
+  </ng-container>
+  <ng-template #bookAddedEl>
+    <div class="layout flex-centry">
+      <div class="message flex">
+        <h3>Book successfully added!</h3>
+        <mat-icon>done</mat-icon>
+      </div>
+    </div>
+  </ng-template>
+</app-modal>
+
+<input class="hidden" type="file" #fileInput (change)="onFileChange()" >

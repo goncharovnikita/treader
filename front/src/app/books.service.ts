@@ -8,7 +8,7 @@ import { Subject } from 'rxjs/Subject';
 export class BooksService {
   private readonly BOOKS_STORAGE = 'books_storage';
   private readonly SELECTED_BOOK = 'selected_book';
-  private readonly NEW_BOOK_URL = '/new/book';
+  private readonly NEW_BOOK_URL = '/book/new';
   private readonly GET_BOOKS_URL = '/get/books';
   private readonly UPDATE_BOOK_INFO_URL = '/update/book/info';
   private _initBooksFetched = new BehaviorSubject(false);
@@ -16,17 +16,29 @@ export class BooksService {
   private selectedBook = new BehaviorSubject<Book>(JSON.parse(localStorage.getItem(this.SELECTED_BOOK)));
 
   constructor(
-    private $auth: AuthService
+    private $auth: AuthService,
+    @Inject('BASE_URL') private $url: string
   ) {
-    this._fetchBooksFromServer();
+    this.fetchBooksFromServer();
   }
 
-  addNewBook(body: {}) {
+  addNewBook(body: {}): Observable<{loaded: boolean, loadPercent: number, result: Book}> {
     return this.$auth.fetchAuthState()
       .switchMap(user => {
-        const options = {headers: {'user-id': user.uid}};
-        return this.$auth.post(this.NEW_BOOK_URL, body, options)
-          .catch(() => Observable.of(null));
+        const blob = new Blob([body]);
+        const result = new Subject<{loaded: boolean, loadPercent: number, result: Book}>();
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `${this.$url}${this.NEW_BOOK_URL}`);
+        xhr.setRequestHeader('user-id', user.uid);
+        Observable.fromEvent(xhr, 'progress').subscribe((e: ProgressEvent) => {
+          result.next({loaded: false, loadPercent: (e.loaded / blob.size) * 100, result: null });
+        });
+        Observable.fromEvent(xhr, 'load')
+          .take(1).subscribe((v: ProgressEvent) => {
+            result.next({loaded: true, loadPercent: 100, result: JSON.parse(v.currentTarget['response'])});
+          });
+        xhr.send(body);
+        return result;
       });
   }
 
@@ -101,15 +113,23 @@ export class BooksService {
   }
 
   fetchBooksFromServer() {
-    this._fetchBooksFromServer();
+    this._fetchBooksFromServer().subscribe(() => {
+      this._initBooksFetched.next(true);
+    });
+  }
+
+  refetchBooks(): Observable<boolean> {
+    return this._fetchBooksFromServer();
   }
 
   private triggerSelectedBookToUpdate() {
     this.selectBook(this.books.getValue()[this.selectedBook.getValue().Description.DocumentInfo.ID]);
   }
 
-  private _fetchBooksFromServer() {
-    this.$auth.get(this.GET_BOOKS_URL).catch(e => Observable.of(null)).map(v => {
+  private _fetchBooksFromServer(): Observable<boolean> {
+    console.log('fetching books from server...')
+    return this.$auth.get(this.GET_BOOKS_URL).catch(e => Observable.of(null)).map(v => {
+      console.log(v)
       if (v) {
         const result = {};
         for (let i = 0; i < Object.keys(v).length; i++) {
@@ -119,12 +139,13 @@ export class BooksService {
         }
         return result;
       }
-    }).subscribe(r => {
+    }).map(r => {
+      console.log(r)
       if (!r) {
-        return;
+        return true;
       }
       this.books.next(r);
-      this._initBooksFetched.next(true);
+      return true;
     });
   }
 }

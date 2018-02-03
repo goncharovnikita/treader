@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
-import { MatIconModule, MatCheckboxModule } from '@angular/material';
+import { MatIconModule, MatCheckboxModule, MatProgressSpinnerModule } from '@angular/material';
 
 @NgModule({
   exports: [
     MatIconModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatProgressSpinnerModule
   ]
 })
 export class MaterialModule {}

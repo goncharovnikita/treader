@@ -8,10 +8,10 @@
   grid-template-rows: 5% 95%
 
 .menu-expanded
-  grid-template-areas: "header" "menu"
+  // grid-template-areas: "header" "menu"
 
 .mobile-hidden
-  display: none
+  // display: none
 
 .header
   grid-area: header
@@ -59,15 +59,20 @@ mat-icon
 
 .menu
   grid-area: menu
+  position: absolute
+  top: 5vh
+  bottom: 0
+  width: 80vw
+  box-shadow: 2px 2px 5px 0px grey
 
 .menu-hidden
-  display: none
+  // display: none
 
 .content
   grid-area: content
 
 .content-hidden
-  display: none
+  // display: none
 
 @media screen and (min-width: 600px)
   .layout

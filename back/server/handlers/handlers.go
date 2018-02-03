@@ -4,10 +4,19 @@ import (
 	"net/http"
 )
 
-// Handle routing
-func Handle() http.Handler {
+// HandleUser handle users routing
+func HandleUser() http.Handler {
 	mux := http.NewServeMux()
 
 	mux.Handle("/update/lexicon", UpdateLexiconHandler())
+	mux.Handle("/add/book", AddBookToUserHandler())
+	return mux
+}
+
+// HandleBook handle book routing
+func HandleBook() http.Handler {
+	mux := http.NewServeMux()
+
+	mux.Handle("/new", NewBookHandler())
 	return mux
 }

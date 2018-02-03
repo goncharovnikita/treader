@@ -1,4 +1,5 @@
 declare type Book = {
+  ID: string;
   Description: {
     TitleInfo: {
       Genre: string;
@@ -54,4 +55,10 @@ declare type BookInfo = {
   LastOpenedDate: string;
   TotalOpenings: number;
   LastReadWords: number;
+}
+
+declare type loadBookEvent = {
+  loaded: boolean;
+  loadPercent: number; 
+  result: Book;
 }

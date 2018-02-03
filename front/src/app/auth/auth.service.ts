@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { Injectable, Inject } from '@angular/core';
@@ -50,6 +50,11 @@ export class AuthService {
         options = Object.assign(options, {headers: {'user-id': user.uid}});
         return this.$http.get(this.$url + url, options);
       });
+  }
+
+  purePost<T>(url: string, body: any, options: any = {}): Observable<HttpResponse<T>> {
+    options = Object.assign(options, {observe: 'response'});
+    return this.post(url, body, options);
   }
 
   post(url: string, body: any, options: {} = {}): Observable<any> {

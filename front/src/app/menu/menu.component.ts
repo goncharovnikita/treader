@@ -2,7 +2,7 @@ import { AuthService } from './../auth/auth.service';
 import { Router } from '@angular/router';
 import { MainService } from './../main/main.service';
 import { BooksService } from './../books.service';
-import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef, Input } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 @Component({
@@ -11,8 +11,9 @@ import { Observable } from 'rxjs/Observable';
   styleUrls: ['./menu.component.sass']
 })
 export class MenuComponent implements OnInit {
-  books: Observable<Array<Book>>;
-  @ViewChild('fileInput') fileInputRef: ElementRef;
+  @Input() expanded: Observable<boolean>;
+  addNewViewed = false;
+  bookLoaded = false;
   constructor(
     private $s: MainService,
     private $b: BooksService,
@@ -22,29 +23,26 @@ export class MenuComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.$cdr.detach();
-    this.books = this.$b.fetchBooks().map(b => b ? <Array<Book>>Object.values(b) : []);
-    this.books.debounceTime(200).subscribe(() => {
-      this.$cdr.detectChanges();
-    });
+ 
   }
 
-  onFileChange() {
-    this.$b.addNewBook(this.fileInputRef.nativeElement.files[0])
-      .subscribe((r) => {
-        if (r) {
-          this.$b.fetchBooksFromServer();
-        }
-        // if (r.book) {
-        //   this.$b.addBook(r.book);
-        //   this.fileInputRef.nativeElement.value = '';
-        //   this.$cdr.detectChanges();
-        // }
-      });
+  addBook() {
+    this.addNewViewed = true;
   }
 
-  selectBook(b: Book) {
-    this.$b.selectBook(b);
+  killSelf() {
+    this.$s.menuExpanded.next(false);
+  }
+
+  killAddBook(v: boolean) {
+    this.addNewViewed = false;
+    if (this.bookLoaded) {
+      this.killSelf();
+    }
+  }
+
+  loadBook(e: boolean) {
+    this.bookLoaded = e;
   }
 
   logout() {

@@ -1,3 +1,5 @@
+import { AddBookService } from './../add-book/add-book.service';
+import { ModalComponent } from './../modal/modal.component';
 import { BookUnitComponent } from './../book/book.component';
 import { LibraryComponent } from './../library/library.component';
 import { MainService } from './main.service';
@@ -13,6 +15,7 @@ import { HomeModule } from '../home/home.module';
 import { ReaderComponent } from '../reader/reader.component';
 import { SelectedBookResolver } from '../reader/selected-book.resolver';
 import { LibraryModule } from '../library/library.module';
+import { AddBookComponent } from '../add-book/add-book.component';
 
 const routes: Routes = [
   {

@@ -1,3 +1,5 @@
+import { AddBookService } from './add-book/add-book.service';
+import { AddBookComponent } from './add-book/add-book.component';
 import { BookUnitComponent } from './book/book.component';
 import { AppAngularfireModule } from './angularfire/angularfire.module';
 import { BooksService } from './books.service';
@@ -18,18 +20,23 @@ import 'rxjs/add/operator/take';
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/pairwise';
+import 'rxjs/add/observable/interval';
 import { TranslateService } from './translate/service';
 import { AuthModule } from './auth/auth.module';
 import { MaterialModule } from './material.module';
 import { HelloPageGuard } from './hello-page/guard';
 import { UserService } from './user/user.service';
+import { ModalComponent } from './modal/modal.component';
 
 @NgModule({
   imports: [
-    MaterialModule
+    MaterialModule,
+    CommonModule
   ],
   declarations: [
-    BookUnitComponent
+    BookUnitComponent,
+    AddBookComponent,
+    ModalComponent
   ],
   exports: [
     CommonModule,
@@ -37,14 +44,17 @@ import { UserService } from './user/user.service';
     AuthModule,
     AppAngularfireModule,
     MaterialModule,
-    BookUnitComponent
+    BookUnitComponent,
+    AddBookComponent,
+    ModalComponent
   ],
   providers: [
     TranslateService,
     HttpService,
     BooksService,
     HelloPageGuard,
-    UserService
+    UserService,
+    AddBookService
   ]
 })
 export class SharedModule {

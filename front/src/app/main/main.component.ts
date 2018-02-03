@@ -42,7 +42,7 @@ export class AppMainComponent implements OnInit {
     this.selectedBook = this.$b.fetchSelectedBook();
     this.menuExpanded.subscribe(v => {
       this.state = v ? 'visible' : 'hidden';
-    })
+    });
   }
 
   triggerMenu() {

@@ -1,17 +1,21 @@
-package server
+package handlers
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
 
-	"../db"
-	"../db/models"
+	"../../db"
+	"../../db/models"
+	"../../reader"
+	"github.com/centrypoint/fb2"
+	mgo "gopkg.in/mgo.v2"
 )
 
-// handle /get/books
-func getBooksHandler() http.Handler {
+// GetBooksHandler handle /get/books
+func GetBooksHandler() http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		var responseStatus int
 		start := time.Now()
@@ -81,17 +85,12 @@ func getBooksHandler() http.Handler {
 	})
 }
 
-// updateBookInfo updates book information
-func updateBookInfoHandler() http.Handler {
+// UpdateBookInfoHandler updates book information
+func UpdateBookInfoHandler() http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		var responseStatus int
 		start := time.Now()
-		defer func() {
-			if responseStatus != 200 {
-				rw.WriteHeader(responseStatus)
-			}
-			infoLogger.Printf("%s %s %d %s\n", r.URL, r.Method, responseStatus, time.Since(start))
-		}()
+		defer reqLogger(&rw, &responseStatus, r.URL, r.Method, &start)
 		if r.Method == http.MethodOptions {
 			rw.Header().Add("Access-Control-Allow-Headers", "content-type, user-id")
 			rw.Header().Add("Access-Control-Allow-Method", "POST")
@@ -156,6 +155,67 @@ func updateBookInfoHandler() http.Handler {
 			}
 
 			responseStatus = 204
+		} else {
+			responseStatus = http.StatusMethodNotAllowed
+		}
+	})
+}
+
+// NewBookHandler add new book to database
+// returns book information
+func NewBookHandler() http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		rw.Header().Add("content-type", "application/octet-stream")
+		start := time.Now()
+		var responseStatus int
+		var err error
+		defer errLogger(&err)
+		defer reqLogger(&rw, &responseStatus, r.URL, r.Method, &start)
+		if r.Method == http.MethodOptions {
+			responseStatus = corsPOSTHandler(rw)
+		} else if r.Method == http.MethodPost {
+			userID := r.Header.Get("user-id")
+			if len(userID) < 1 {
+				responseStatus = 401
+				return
+			}
+			var (
+				bookInfo fb2.FB2
+				data     []byte
+				rdr      reader.FB2Reader
+			)
+
+			defer r.Body.Close()
+
+			if data, err = ioutil.ReadAll(r.Body); err != nil {
+				responseStatus = 500
+				return
+			}
+
+			if _, bookInfo, err = rdr.ReadBook(data); err != nil {
+				responseStatus = 500
+				return
+			}
+
+			var b db.Book = db.Book(bookInfo)
+			if e := db.Insert(&b); e != nil {
+				if !mgo.IsDup(e) {
+					err = e
+					responseStatus = 500
+					return
+				}
+			}
+
+			b.Modificate()
+
+			if data, err = json.Marshal(b); err != nil {
+				responseStatus = 500
+				return
+			}
+
+			rw.Write(data)
+			responseStatus = 200
+
 		} else {
 			responseStatus = http.StatusMethodNotAllowed
 		}

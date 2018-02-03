@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"../../db"
+	"../../db/models"
 )
 
 // UpdateLexiconHandler updates user's lexicon
@@ -100,4 +101,72 @@ func updateLexicon(r *http.Request) int {
 		return 500
 	}
 	return 204
+}
+
+// AddBookToUserHandler adds book to user if it exists
+func AddBookToUserHandler() http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		var responseStatus int
+		var err error
+		start := time.Now()
+		defer reqLogger(&rw, &responseStatus, r.URL, r.Method, &start)
+		defer errLogger(&err)
+		if r.Method == http.MethodOptions {
+			responseStatus = corsPOSTHandler(rw)
+		} else if r.Method == http.MethodPost {
+			userID := r.Header.Get("user-id")
+			bookID := r.URL.Query().Get("book_id")
+			if len(userID) < 1 {
+				responseStatus = 401
+				return
+			}
+
+			if len(bookID) < 1 {
+				responseStatus = http.StatusBadRequest
+				return
+			}
+
+			var (
+				user db.User
+				book db.Book
+			)
+
+			if err = db.GetOne(userID, &user); err != nil {
+				responseStatus = 500
+				return
+			}
+
+			if err = db.GetOne(bookID, &book); err != nil {
+				responseStatus = 500
+				return
+			}
+
+			if _, exists := user.Books[bookID]; exists {
+				responseStatus = 204
+				return
+			}
+
+			if len(user.Books) < 1 {
+				user.Books = make(map[string]models.UserBook)
+			}
+
+			user.Books[bookID] = models.UserBook{
+				ID:             bookID,
+				LastPage:       0,
+				LastTotalPages: 0,
+				LastOpenedDate: "",
+				TotalOpenings:  0,
+				LastReadWords:  0,
+			}
+
+			if err = db.Update(userID, &user); err != nil {
+				responseStatus = 500
+				return
+			}
+
+			responseStatus = 204
+		} else {
+			responseStatus = http.StatusMethodNotAllowed
+		}
+	})
 }

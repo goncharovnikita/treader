@@ -14,7 +14,7 @@ func init() {
 
 func main() {
 	s := server.Server
-
+	// go lserver.Serve()
 	db.Connect(config.DBURL, config.DBName, config.DBUsername, config.DBPWD)
 	s.Start()
 }

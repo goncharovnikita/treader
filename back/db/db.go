@@ -16,7 +16,7 @@ var (
 // Connect perform database connection with specified URL and database name
 func Connect(url, name, login, pwd string) {
 	var err error
-	log.SetFlags(log.Lshortfile | log.Ldate)
+	log.SetFlags(log.Llongfile | log.Ldate)
 	log.SetPrefix("DB: ")
 	connectionURL = url
 	dbName = name

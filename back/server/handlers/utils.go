@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	log.SetFlags(log.Lshortfile)
+	log.SetFlags(log.Llongfile)
 }
 
 var infoLogger = log.New(os.Stdout, "SERVER: ", log.Ltime|log.Ldate)

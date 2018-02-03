@@ -35,11 +35,12 @@ func (s server) Start() {
 	fmt.Printf("starting http server of %s port...\n", s.port)
 	h := http.NewServeMux()
 
-	h.Handle("/new/book", corsProvider(newBookHandler()))
-	h.Handle("/get/books", corsProvider(getBooksHandler()))
-	h.Handle("/update/book/info", corsProvider(updateBookInfoHandler()))
+	h.Handle("/new/book", corsProvider(handlers.NewBookHandler())) // Deprecated
+	h.Handle("/get/books", corsProvider(handlers.GetBooksHandler()))
+	h.Handle("/update/book/info", corsProvider(handlers.UpdateBookInfoHandler()))
 	h.Handle("/translate", translateWordHandler())
-	h.Handle("/user/", corsProvider(http.StripPrefix("/user", handlers.Handle())))
+	h.Handle("/user/", corsProvider(http.StripPrefix("/user", handlers.HandleUser())))
+	h.Handle("/book/", corsProvider(http.StripPrefix("/book", handlers.HandleBook())))
 
 	log.Fatal(http.ListenAndServe(s.port, h))
 }

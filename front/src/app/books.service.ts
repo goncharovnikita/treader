@@ -1,8 +1,8 @@
-import { AuthService } from './auth/auth.service';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Injectable, Inject } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
+import {AuthService} from './auth/auth.service';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Injectable, Inject} from '@angular/core';
+import {Observable} from 'rxjs/Observable';
+import {Subject} from 'rxjs/Subject';
 
 @Injectable()
 export class BooksService {
@@ -12,31 +12,29 @@ export class BooksService {
   private readonly GET_BOOKS_URL = '/get/books';
   private readonly UPDATE_BOOK_INFO_URL = '/update/book/info';
   private _initBooksFetched = new BehaviorSubject(false);
-  private books = new BehaviorSubject<{[key: string]: Book}>(null);
+  private books = new BehaviorSubject<{ [key: string]: Book }>(null);
   private selectedBook = new BehaviorSubject<Book>(JSON.parse(localStorage.getItem(this.SELECTED_BOOK)));
 
-  constructor(
-    private $auth: AuthService,
-    @Inject('BASE_URL') private $url: string
-  ) {
+  constructor(private $auth: AuthService,
+              @Inject('BASE_URL') private $url: string) {
     this.fetchBooksFromServer();
   }
 
-  addNewBook(body: {}): Observable<{loaded: boolean, loadPercent: number, result: Book}> {
+  addNewBook(body: {}): Observable<{ loaded: boolean, loadPercent: number, result: Book }> {
     return this.$auth.fetchAuthState()
       .switchMap(user => {
         const blob = new Blob([body]);
-        const result = new Subject<{loaded: boolean, loadPercent: number, result: Book}>();
+        const result = new Subject<LoadBookEvent>();
         const xhr = new XMLHttpRequest();
         xhr.open('POST', `${this.$url}${this.NEW_BOOK_URL}`);
         xhr.setRequestHeader('user-id', user.uid);
         Observable.fromEvent(xhr, 'progress').subscribe((e: ProgressEvent) => {
-          result.next({loaded: false, loadPercent: (e.loaded / blob.size) * 100, result: null });
+          result.next({loaded: false, loadPercent: (e.loaded / blob.size) * 100, result: null});
         });
         Observable.fromEvent(xhr, 'load')
           .take(1).subscribe((v: ProgressEvent) => {
-            result.next({loaded: true, loadPercent: 100, result: JSON.parse(v.currentTarget['response'])});
-          });
+          result.next({loaded: true, loadPercent: 100, result: JSON.parse(v.currentTarget['response'])});
+        });
         xhr.send(body);
         return result;
       });
@@ -45,7 +43,9 @@ export class BooksService {
   updateBook(b: Book) {
     const books = JSON.parse(localStorage.getItem(this.BOOKS_STORAGE));
     const book = books[b.Description.DocumentInfo.ID];
-    if (!book) { return; }
+    if (!book) {
+      return;
+    }
     if (b.BookInfo.LastTotalPages !== book.LastTotalPages && book.LastTotalPages) {
       // this.updateCurrentPage(b.BookInfo, book.LastTotalPages);
     }
@@ -59,7 +59,9 @@ export class BooksService {
   softUpdateBook(b: Book) {
     const books = JSON.parse(localStorage.getItem(this.BOOKS_STORAGE));
     const book = books[b.Description.DocumentInfo.ID];
-    if (!book) { return; }
+    if (!book) {
+      return;
+    }
     if (b.BookInfo.LastTotalPages !== book.LastTotalPages && book.LastTotalPages) {
       // this.updateCurrentPage(b.BookInfo, book.LastTotalPages);
     }
@@ -91,7 +93,9 @@ export class BooksService {
   deleteBook(b: Book) {
     const books = JSON.parse(localStorage.getItem(this.BOOKS_STORAGE));
     const book = books[b.Description.DocumentInfo.ID];
-    if (!book) { return; }
+    if (!book) {
+      return;
+    }
     delete books[b.Description.DocumentInfo.ID];
     this.books.next(books);
     if (this.selectedBook.getValue()) {
@@ -127,9 +131,9 @@ export class BooksService {
   }
 
   private _fetchBooksFromServer(): Observable<boolean> {
-    console.log('fetching books from server...')
+    console.log('fetching books from server...');
     return this.$auth.get(this.GET_BOOKS_URL).catch(e => Observable.of(null)).map(v => {
-      console.log(v)
+      console.log(v);
       if (v) {
         const result = {};
         for (let i = 0; i < Object.keys(v).length; i++) {
@@ -140,7 +144,7 @@ export class BooksService {
         return result;
       }
     }).map(r => {
-      console.log(r)
+      console.log(r);
       if (!r) {
         return true;
       }

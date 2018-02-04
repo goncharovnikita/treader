@@ -1,64 +1,65 @@
-declare type Book = {
+declare interface Book {
   ID: string;
   Description: {
     TitleInfo: {
       Genre: string;
-			Author:     AuthorType[]
-			BookTitle:  string  
-			Annotation: string  
-			Keywords:   string  
-			Date:       string  
-			Coverpage: {
-				Image: {Href: string}
-			}
-			Lang:       string    
-			SrcLang:    string    
-			Translator: AuthorType
-			Sequence:   string    
+      Author: AuthorType[];
+      BookTitle: string;
+      Annotation: string;
+      Keywords: string;
+      Date: string;
+      Coverpage: {
+        Image: { Href: string; }
+      }
+      Lang: string;
+      SrcLang: string;
+      Translator: AuthorType;
+      Sequence: string;
     }
     DocumentInfo: {
-      Author:      AuthorType[]
-      ProgramUsed: string      
-      Date:        string      
-      SrcURL:      string[]
-      SrcOcr:      string      
-      ID:          string      
-      Version:     number     
-      History:     string      
+      Author: AuthorType[];
+      ProgramUsed: string;
+      Date: string;
+      SrcURL: string[];
+      SrcOcr: string;
+      ID: string;
+      Version: number;
+      History: string;
     }
-  }
+  };
   Body: {
     Sections: {
-      P: string[]
-    }[]
-  }
+      P: string[];
+    }[];
+  };
   Binary: {
     ContentType: string;
     ID: string;
     Value: string;
-  }[]
-  BookInfo
+  }[];
+  BookInfo;
 }
 
-declare type AuthorType = {
-  FirstName:  string
-	MiddleName: string
-	LastName:   string
-	Nickname:   string
-	HomePage:   string
-	Email:      string
+declare interface AuthorType {
+  FirstName: string;
+  MiddleName: string;
+  LastName: string;
+  Nickname: string;
+  HomePage: string;
+  Email: string;
 }
 
-declare type BookInfo = {
+declare interface BookInfo {
   LastPage: number;
   LastTotalPages: number;
   LastOpenedDate: string;
   TotalOpenings: number;
   LastReadWords: number;
+  Read: boolean;
 }
 
-declare type loadBookEvent = {
+declare interface LoadBookEvent {
   loaded: boolean;
-  loadPercent: number; 
+  loadPercent: number;
   result: Book;
 }

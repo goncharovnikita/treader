@@ -7,15 +7,15 @@
     <app-reader-renderer [sheet]="currentPageValue"></app-reader-renderer>
     <!-- <ng-container *ngFor="let w of (currentPageValue | async)">
       <div [innerHTML]="w" >
-       
+
       </div>
     </ng-container> -->
   </div>
-  <app-reader-navbar 
-    [currentPage]="currentPage" 
+  <app-reader-navbar
+    [currentPage]="currentPage"
     [totalPages]="totalPages"
-    [nextPageHook]="nextPage"
-    [prevPageHook]="prevPage"    
+    [nextPageHook]="nextPage.bind(this)"
+    [prevPageHook]="prevPage"
     ></app-reader-navbar>
 </div>
 

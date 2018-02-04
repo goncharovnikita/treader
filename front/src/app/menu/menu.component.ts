@@ -42,7 +42,7 @@ export class MenuComponent implements OnInit {
       }
     });
 
-    Observable.fromEvent(this.menuElRef.nativeElement, 'touchmove').pairwise().subscribe((v: Array<Event>) => {
+    Observable.fromEvent(this.menuElRef.nativeElement, 'touchmove').pairwise().subscribe((v) => {
       const v1 = v[0]['changedTouches'][0].clientX;
       const v2 = v[1]['changedTouches'][0].clientX;
       if (this.expanded.getValue() && this.menuExpPercent <= 100 && v2 - v1 < 10) {

@@ -170,3 +170,43 @@ func AddBookToUserHandler() http.Handler {
 		}
 	})
 }
+
+// GetUserStatisticHandler handle request for user's statistics
+func GetUserStatisticHandler() http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		var responseStatus int
+		var err error
+		start := time.Now()
+		defer reqLogger(&rw, &responseStatus, r.URL, r.Method, &start)
+		defer errLogger(&err)
+		if r.Method == http.MethodOptions {
+			responseStatus = corsPOSTHandler(rw)
+		} else if r.Method == http.MethodGet {
+			userID := r.Header.Get("user-id")
+			if len(userID) < 1 {
+				responseStatus = 401
+			}
+
+			var (
+				stats    db.UserStatistic
+				response []byte
+			)
+
+			if err = db.GetOne(userID, &stats); err != nil {
+				responseStatus = 500
+				return
+			}
+
+			if response, err = json.Marshal(&stats); err != nil {
+				responseStatus = 500
+				return
+			}
+
+			rw.Write(response)
+			responseStatus = 200
+
+		} else {
+			responseStatus = 405
+		}
+	})
+}

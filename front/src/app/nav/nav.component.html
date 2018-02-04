@@ -1,0 +1,18 @@
+
+<div class="layout" [ngClass]="{'have-selected-book': selectedBook | async}">
+  <div class="menu flex-centry">
+    <img (click)="toProfile()" class="avatar" [src]="(user | async)?.photoURL" alt="">
+  </div>
+  <div class="library flex-centry">
+    <mat-icon (click)="toLibrary()" class="unit">account_balance</mat-icon>
+  </div>
+  <div class="selected" *ngIf="selectedBook | async">
+    <mat-icon (click)="toSelected()" class="unit">book</mat-icon>
+  </div>
+  <div class="home">
+    <mat-icon (click)="toHome()" class="unit">dashboard</mat-icon>
+  </div>
+  <div class="settings">
+    <mat-icon (click)="toSettings()" class="unit">settings</mat-icon>
+  </div>
+</div>

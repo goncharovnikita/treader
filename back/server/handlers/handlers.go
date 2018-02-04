@@ -10,6 +10,7 @@ func HandleUser() http.Handler {
 
 	mux.Handle("/update/lexicon", UpdateLexiconHandler())
 	mux.Handle("/add/book", AddBookToUserHandler())
+	mux.Handle("/get/statistics", GetUserStatisticHandler())
 	return mux
 }
 

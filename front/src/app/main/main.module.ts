@@ -1,3 +1,4 @@
+import { NavComponent } from './../nav/nav.component';
 import { AddBookService } from './../add-book/add-book.service';
 import { ModalComponent } from './../modal/modal.component';
 import { BookUnitComponent } from './../book/book.component';
@@ -31,6 +32,10 @@ const routes: Routes = [
         component: LibraryComponent
       },
       {
+        path: 'profile',
+        loadChildren: '../profile/profile.module#ProfileModule'
+      },
+      {
         path: 'book/:book_id',
         component: ReaderComponent,
         resolve: {
@@ -47,7 +52,8 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [
-    AppMainComponent
+    AppMainComponent,
+    NavComponent
   ],
   imports: [
     RouterModule.forChild(routes),

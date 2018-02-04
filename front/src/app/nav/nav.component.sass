@@ -1,0 +1,41 @@
+
+
+.layout 
+  height: 100%
+  width: 100%
+  display: grid
+  grid-template-areas: "menu library home options"
+  grid-template-columns: repeat(4, 1fr)
+  grid-template-rows: 5vh
+  box-sizing: border-box
+
+.have-selected-book
+  grid-template-areas: "menu library selected home options"
+  grid-template-columns: repeat(5, 1fr)
+
+.menu
+  grid-area: menu
+
+.selected
+  grid-area: selected
+
+.unit
+  font-size: 4vh
+  height: 100%
+  width: 100%
+  display: flex!important
+  justify-content: space-around
+  align-items: center
+  line-height: normal!important
+
+.avatar
+  height: 80%
+
+.library
+  grid-area: library
+
+.home
+  grid-area: home
+
+.options
+  grid-area: options

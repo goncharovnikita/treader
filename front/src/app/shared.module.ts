@@ -21,6 +21,7 @@ import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/pairwise';
 import 'rxjs/add/observable/interval';
+import 'rxjs/add/operator/pluck';
 import { TranslateService } from './translate/service';
 import { AuthModule } from './auth/auth.module';
 import { MaterialModule } from './material.module';

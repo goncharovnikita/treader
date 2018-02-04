@@ -2,16 +2,24 @@
   background-color: #f0f1ec
   height: 100%
   width: 100%
-  display: grid 
+  display: grid
   grid-template-areas: "add-book" "to-lib" "." "logout"
   grid-template-rows: 10vh 10vh calc(100% - 30vh) 10vh
+  box-shadow: 2px 2px 5px 0 grey
+
+.smooth
+  transition: all 200ms ease-in-out
+
+.hidden
+  transform: translateX(-100%)
+  box-shadow: none
 
 .add_new
   grid-area: add-book
   box-sizing: border-box
   padding: 12px
 
-.to-lib 
+.to-lib
   grid-area: to-lib
   box-sizing: border-box
   padding: 12px
@@ -24,6 +32,13 @@
 .grid-vertically
   display: grid
   align-content: center
+
+.triggerer
+  position: fixed
+  top: 0
+  left: 0
+  bottom: 0
+  width: 10vw
 
 .button
   border-left: 2px solid black

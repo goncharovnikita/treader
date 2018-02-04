@@ -2,7 +2,7 @@ import { MainService } from './main.service';
 import { AuthService } from './../auth/auth.service';
 import { BooksService } from './../books.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { User } from '@firebase/auth-types';
 import { trigger, state, style, transition, animate } from '@angular/core';

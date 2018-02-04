@@ -1,25 +1,21 @@
-<div class="layout" [ngClass]="{'menu-expanded': menuExpanded | async}" >
+<div class="layout">
   <div class="header">
-    <div class="credentials is-button" (click)="triggerMenu()" [ngClass]="{'credentials__expanded': menuExpanded | async}" >
+    <div class="credentials is-button" (click)="triggerMenu()">
       <div class="grid-centry">
         <mat-icon>menu</mat-icon>
       </div>
       <div class="avatar">
         <img [src]="(user | async)?.photoURL" alt="">
       </div>
-      <div class="initials grid-centry main-font" *ngIf="menuExpanded | async">
-          {{ (user | async)?.displayName }}
-      </div>
     </div>
     <div class="title main-font">
       TReader
     </div>
   </div>
-  <div [@state]="state" class="menu" [ngClass]="{'menu-hidden': !(menuExpanded | async)}" >
-    <app-menu></app-menu>
+  <div class="menu">
+    <app-menu [expanded]="menuExpanded"></app-menu>
   </div>
   <div class="content" [ngClass]="{'content-hidden': menuExpanded | async}">
-    <!-- <app-reader [book]="selectedBook" ></app-reader> -->
     <router-outlet></router-outlet>
   </div>
   <div class="nav">

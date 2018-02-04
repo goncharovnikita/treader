@@ -1,4 +1,5 @@
-<div class="menu">
+<div class="menu"
+     [ngClass]="{'hidden': !(expanded | async)}" #menuEl>
   <div class="add_new grid-vertically">
     <div class="button is-button" (click)="addBook()" >Add book</div>
   </div>
@@ -15,3 +16,5 @@
 <ng-container *ngIf="addNewViewed">
   <app-add-book (kill)="killAddBook($event)" (bookLoaded)="loadBook($event)"></app-add-book>
 </ng-container>
+
+<div class="triggerer" #triggererEl></div>

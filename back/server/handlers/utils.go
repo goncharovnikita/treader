@@ -6,6 +6,8 @@ import (
 	"net/url"
 	"os"
 	"time"
+
+	sLogger "../../logging-server"
 )
 
 func init() {
@@ -62,9 +64,10 @@ func reqLogger(rw *http.ResponseWriter, responseStatus *int, URL *url.URL, Metho
 	infoLogger.Printf("%s %s %d %s\n", Method, URL, *responseStatus, time.Since(*start))
 }
 
-// err logger, should be deffered
+// err logger, should be deferred
 func errLogger(e *error) {
-	if e != nil {
+	if (*e) != nil {
 		log.Println(*e)
+		sLogger.SendLog((*e).Error())
 	}
 }

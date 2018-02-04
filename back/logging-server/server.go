@@ -1,37 +1,40 @@
 package loggingServer
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"log"
-	"net"
+	"net/http"
 )
 
 func init() {
 	log.SetFlags(log.Llongfile | log.LstdFlags)
 }
 
+const hookURL = "https://api.goncharovnikita.com/tg/hooks/new/error"
+
 // Serve starts tcp server for listening incoming reports
 func Serve() {
-	log.Println("Starting tcp server on 8081 port...")
-	ln, err := net.Listen("tcp", ":8081")
+
+}
+
+// SendLog sends error message to telegram bot
+func SendLog(m string) {
+	const prefix = "ERROR FROM TREADER: "
+	params := struct{ ErrorMessage string `json:"error_message"` }{ErrorMessage: m}
+	data, err := json.Marshal(params)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return
 	}
 
-	for {
-		defer func() {
-			if err := recover(); err != nil {
-				log.Println(err)
-			}
-		}()
-		conn, err := ln.Accept()
-		if err != nil {
-			log.Println(err)
-		}
-
-		go func(c net.Conn) {
-			defer c.Close()
-			c.Write([]byte("hello!"))
-		}(conn)
-
+	r, e := http.Post(hookURL, "application/json", bytes.NewReader(data))
+	defer r.Body.Close()
+	if e != nil {
+		log.Println(e)
 	}
+
+	fmt.Printf("%s\n", r.Status)
+
 }

@@ -14,17 +14,14 @@ import (
 func UpdateLexiconHandler() http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		var responseStatus int
+		var err error
 		start := time.Now()
-		defer func() {
-			if responseStatus != 200 {
-				rw.WriteHeader(responseStatus)
-			}
-			infoLogger.Printf("%s %s %d %s\n", r.URL, r.Method, responseStatus, time.Since(start))
-		}()
+		defer reqLogger(&rw, &responseStatus, r.URL, r.Method, &start)
+		defer errLogger(&err)
 		if r.Method == http.MethodOptions {
 			responseStatus = corsPOSTHandler(rw)
 		} else if r.Method == http.MethodPost {
-			responseStatus = updateLexicon(r)
+			responseStatus, err = updateLexicon(r)
 		} else {
 			responseStatus = http.StatusMethodNotAllowed
 		}
@@ -32,7 +29,7 @@ func UpdateLexiconHandler() http.Handler {
 }
 
 // update lexicon handler
-func updateLexicon(r *http.Request) int {
+func updateLexicon(r *http.Request) (int, error) {
 	var (
 		err    error
 		params struct {
@@ -44,14 +41,13 @@ func updateLexicon(r *http.Request) int {
 
 	userID := r.Header.Get("user-id")
 	if len(userID) < 1 {
-		return 401
+		return 401, nil
 	}
 
 	defer r.Body.Close()
 
 	if err = json.NewDecoder(r.Body).Decode(&params); err != nil {
-		log.Print(err)
-		return 500
+		return 500, err
 	}
 
 	userStat.ID = userID
@@ -65,11 +61,11 @@ func updateLexicon(r *http.Request) int {
 
 			if err = db.Insert(&userStat); err != nil {
 				log.Println(err)
-				return 500
+				return 500, err
 			}
-			return 204
+			return 204, nil
 		}
-		return 401
+		return 401, nil
 	}
 
 	if _, ok := userStat.Lexicon[params.Lang]; !ok {
@@ -79,28 +75,25 @@ func updateLexicon(r *http.Request) int {
 		}
 
 		if err = db.Update(userID, &userStat); err != nil {
-			log.Println(err)
-			return 500
+			return 500, err
 		}
-		return 204
+		return 204, nil
 	}
 
 	if _, ok := userStat.Lexicon[params.Lang][time.Now().Format(time.UnixDate)]; ok {
 		userStat.Lexicon[params.Lang][time.Now().Format(time.UnixDate)] = conmap(userStat.Lexicon[params.Lang], params.Words)
 		if err = db.Update(userID, &userStat); err != nil {
-			log.Println(err)
-			return 500
+			return 500, err
 		}
-		return 204
+		return 204, nil
 	}
 
 	userStat.Lexicon[params.Lang][time.Now().Format(time.UnixDate)] = make(map[string]string)
 	userStat.Lexicon[params.Lang][time.Now().Format(time.UnixDate)] = conmap(userStat.Lexicon[params.Lang], params.Words)
 	if err = db.Update(userID, &userStat); err != nil {
-		log.Println(err)
-		return 500
+		return 500, err
 	}
-	return 204
+	return 204, nil
 }
 
 // AddBookToUserHandler adds book to user if it exists

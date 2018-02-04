@@ -1,0 +1,13 @@
+<div class="layout">
+  <h3 class="title">
+    {{ (user | async)?.displayName }}
+  </h3>
+  <h4 class="title">
+    Lexicon
+  </h4>
+  <ng-container *ngIf="statistics | async; let stats">
+    <ng-container *ngFor="let lang of lexicon">
+      <p class="title">{{ lang }}</p>
+    </ng-container>
+  </ng-container>
+</div>

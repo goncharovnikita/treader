@@ -4,14 +4,18 @@
   height: 100%
   width: 100%
   display: grid
-  grid-template-areas: "header" "content"
-  grid-template-rows: 5% 95%
+  grid-template-areas: "header" "content" "nav"
+  grid-template-rows: 5% 90% 5%
 
 .menu-expanded
   // grid-template-areas: "header" "menu"
 
 .mobile-hidden
   // display: none
+
+.nav
+  grid-area: nav
+  background-color: $mainColor
 
 .header
   grid-area: header

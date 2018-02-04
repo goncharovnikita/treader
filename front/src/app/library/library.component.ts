@@ -13,6 +13,6 @@ export class LibraryComponent implements OnInit {
 
   ngOnInit() {
     this.books = this.$b.fetchBooks().map(b => b ? Object.values(b) : []);
-    this.books.subscribe(console.log)
+    // this.books.subscribe(console.log)
   }
 }

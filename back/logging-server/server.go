@@ -22,7 +22,9 @@ func Serve() {
 // SendLog sends error message to telegram bot
 func SendLog(m string) {
 	const prefix = "ERROR FROM TREADER: "
-	params := struct{ ErrorMessage string `json:"error_message"` }{ErrorMessage: m}
+	params := struct {
+		ErrorMessage string `json:"error_message"`
+	}{ErrorMessage: m}
 	data, err := json.Marshal(params)
 	if err != nil {
 		log.Println(err)

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -66,6 +67,10 @@ func reqLogger(rw *http.ResponseWriter, responseStatus *int, URL *url.URL, Metho
 
 // err logger, should be deferred
 func errLogger(e *error) {
+	if err := recover(); err != nil {
+		log.Println(err)
+		sLogger.SendLog(fmt.Sprintf("%v\n", err))
+	}
 	if (*e) != nil {
 		log.Println(*e)
 		sLogger.SendLog((*e).Error())

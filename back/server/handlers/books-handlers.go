@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -124,6 +125,8 @@ func UpdateBookInfoHandler() http.Handler {
 
 			newBook := user.Books[params.ID]
 
+			fmt.Printf("%+v\n", params)
+
 			if params.LastPage > 0 {
 				newBook.LastPage = params.LastPage
 			}
@@ -138,6 +141,32 @@ func UpdateBookInfoHandler() http.Handler {
 			}
 			if params.LastReadWords > 0 {
 				newBook.LastReadWords = params.LastReadWords
+			}
+			if params.Read {
+				newBook.Read = true
+				var stats db.UserStatistic
+				stats.ID = userID
+				if err = db.GetOne(userID, &stats); err != nil && err.Error() == "not found" {
+					stats.ReadBooks = map[string]string{params.ID: params.ID}
+					stats.ID = userID
+					if err = db.Insert(&stats); err != nil {
+						responseStatus = 500
+						return
+					}
+				} else if err != nil {
+					responseStatus = 500
+					return
+				}
+
+				if len(stats.ReadBooks) < 1 {
+					stats.ReadBooks = make(map[string]string)
+				}
+
+				stats.ReadBooks[params.ID] = params.ID
+				if err = db.Update(userID, &stats); err != nil {
+					responseStatus = 500
+					return
+				}
 			}
 
 			user.Books[params.ID] = newBook

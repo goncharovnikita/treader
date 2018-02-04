@@ -150,6 +150,7 @@ func AddBookToUserHandler() http.Handler {
 				LastOpenedDate: "",
 				TotalOpenings:  0,
 				LastReadWords:  0,
+				Read:           false,
 			}
 
 			if err = db.Update(userID, &user); err != nil {

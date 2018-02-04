@@ -30,13 +30,15 @@ export class MenuComponent implements OnInit {
 
   ngOnInit() {
     Observable.fromEvent(this.triggererElRef.nativeElement, 'touchmove').subscribe((v: Event) => {
-      if (!this.expanded.getValue() && this.menuExpPercent < 100) {
+      if (this.menuExpPercent < 100) {
+        this.expanded.next(true);
         const winWidth = window.screen.width;
         const touchWidth = v['changedTouches'][0].clientX;
         const percent = (touchWidth / winWidth) * 100;
         this.menuExpPercent = percent;
         this.$renderer.removeClass(this.menuElRef.nativeElement, 'smooth');
         this.menuElRef.nativeElement.style.transform = `translateX(-${100 - percent}%)`;
+        this.menuElRef.nativeElement.style.zIndex = '1999';
       }
     });
 
@@ -49,6 +51,7 @@ export class MenuComponent implements OnInit {
         this.menuExpPercent = percent;
         this.$renderer.removeClass(this.menuElRef.nativeElement, 'smooth');
         this.menuElRef.nativeElement.style.transform = `translateX(-${100 - percent}%)`;
+        this.menuElRef.nativeElement.style.zIndex = '1999';
         // console.log(this.menuExpPercent);
       }
     });
@@ -64,6 +67,7 @@ export class MenuComponent implements OnInit {
         this.$renderer.addClass(this.menuElRef.nativeElement, 'smooth');
         this.$renderer.addClass(this.menuElRef.nativeElement, 'hidden');
         this.menuElRef.nativeElement.style.transform = 'translateX(-100%)';
+        this.menuElRef.nativeElement.style.zIndex = '99';
         this.expanded.next(false);
         this.menuExpPercent = 0;
 
@@ -81,6 +85,7 @@ export class MenuComponent implements OnInit {
         this.$renderer.addClass(this.menuElRef.nativeElement, 'smooth');
         this.$renderer.addClass(this.menuElRef.nativeElement, 'hidden');
         this.menuElRef.nativeElement.style.transform = 'translateX(-100%)';
+        this.menuElRef.nativeElement.style.zIndex = '99';
         this.expanded.next(false);
         this.menuExpPercent = 0;
 

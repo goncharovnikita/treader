@@ -1,4 +1,4 @@
-<div class="layout">
+<div class="layout" [ngClass]="{'menu-expanded': menuExpanded | async}">
   <div class="header">
     <div class="credentials is-button" (click)="triggerMenu()">
       <div class="grid-centry">

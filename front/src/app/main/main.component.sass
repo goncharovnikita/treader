@@ -7,15 +7,10 @@
   grid-template-areas: "header" "content" "nav"
   grid-template-rows: 5% 90% 5%
 
-.menu-expanded
-  // grid-template-areas: "header" "menu"
-
-.mobile-hidden
-  // display: none
-
 .nav
   grid-area: nav
   background-color: $mainColor
+  z-index: 999
 
 .header
   grid-area: header
@@ -34,7 +29,6 @@
   grid-template-columns: auto auto 2fr
 
 .initials
-  // white-space: nowrap
   font-size: 4vw
   word-wrap: break-word
   color: white
@@ -50,6 +44,13 @@
 
 mat-icon
   color: white
+
+.menu-expanded
+  .content
+    z-index: 99
+
+  .menu
+    z-index: 199
 
 .title
   display: flex
@@ -68,13 +69,9 @@ mat-icon
   bottom: 0
   width: 80vw
 
-.menu-hidden
-
 .content
   grid-area: content
-
-.content-hidden
-  // display: none
+  z-index: 999
 
 @media screen and (min-width: 600px)
   .layout

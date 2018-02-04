@@ -1,26 +1,25 @@
-import { BooksService } from './../books.service';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Observable } from 'rxjs/Observable';
-import { ReaderService } from './reader.service';
+import {BooksService} from './../books.service';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
+import {ReaderService} from './reader.service';
 import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
-  OnInit,
-  Input,
-  ViewChild,
+  DoCheck,
   ElementRef,
   NgZone,
-  AfterViewInit,
-  ChangeDetectorRef,
-  ChangeDetectionStrategy,
   OnDestroy,
-  DoCheck
+  OnInit,
+  ViewChild
 } from '@angular/core';
-import { uniqueChars } from './unique-chars';
-import { Subject } from 'rxjs/Subject';
-import { AppService } from '../app.service';
-import { ActivatedRoute } from '@angular/router';
-import { isNullOrUndefined } from 'util';
-import { UserService } from '../user/user.service';
+import {uniqueChars} from './unique-chars';
+import {Subject} from 'rxjs/Subject';
+import {AppService} from '../app.service';
+import {ActivatedRoute} from '@angular/router';
+import {isNullOrUndefined} from 'util';
+import {UserService} from '../user/user.service';
 
 @Component({
   selector: 'app-reader',
@@ -32,30 +31,28 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
   book: Subject<Book> = new Subject();
   @ViewChild('contentEl') contentRef: ElementRef;
   @ViewChild('cWidthMeasureEl') cWidthMeasureEl: ElementRef;
-  sections: {P: Array<string>}[];
+  sections: { P: Array<string> }[];
   currentPage = new BehaviorSubject(null);
   totalPages = new BehaviorSubject(null);
   uniqueChars = uniqueChars;
   currentPageValue = new Subject<string[]>();
   ready = new Subject();
   pages = new BehaviorSubject([]);
-  pHeight = 18;
-  numbersOfParagraphsPerPage: number;
   subscribed = false;
   bookInfo: BookInfo;
-  lexicon: {lang: string, words: string[]} = {lang: '', words: []};
+  lexicon: { lang: string, words: string[] } = {lang: '', words: []};
+
   /**
    * Constructor
    */
-  constructor(
-    private $s: ReaderService,
-    private $zone: NgZone,
-    private $cdr: ChangeDetectorRef,
-    private $b: BooksService,
-    private $app: AppService,
-    private $route: ActivatedRoute,
-    private $us: UserService
-  ) {}
+  constructor(private $s: ReaderService,
+              private $zone: NgZone,
+              private $cdr: ChangeDetectorRef,
+              private $b: BooksService,
+              private $app: AppService,
+              private $route: ActivatedRoute,
+              private $us: UserService) {
+  }
 
   get bookTitle(): Observable<string> {
     return this.book.map(b => b ? b.Description.TitleInfo.BookTitle : '');
@@ -63,12 +60,16 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
 
   get author(): Observable<string> {
     return this.book.map(b => {
-      if (!b) { return ''; }
+      if (!b) {
+        return '';
+      }
       const aPath = b.Description.DocumentInfo.Author[0];
-      const firstName  = aPath.FirstName ? aPath.FirstName : '';
+      const firstName = aPath.FirstName ? aPath.FirstName : '';
       const middleName = aPath.MiddleName ? aPath.MiddleName : '';
-      const lastName   = aPath.LastName ? aPath.LastName : '';
-      if (!aPath) { return ''; }
+      const lastName = aPath.LastName ? aPath.LastName : '';
+      if (!aPath) {
+        return '';
+      }
       return `${firstName} ${middleName} ${lastName}`;
     });
   }
@@ -77,10 +78,17 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
     return this.$s.triggerRefetchBookData;
   }
 
+  nextPage() {
+    this.updateLexicon();
+    this.currentPage.next(this.currentPage.getValue() + 1);
+  }
+
   ngOnInit() {
     this.book = this.$b.fetchSelectedBook();
     this.book.subscribe(b => {
-      if (!b) { return; }
+      if (!b) {
+        return;
+      }
       this.lexicon.lang = b.Description.TitleInfo.Lang;
       this.bookInfo = b.BookInfo;
       this.bookInfo.LastOpenedDate = new Date().toDateString();
@@ -100,7 +108,8 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
   }
 
   updateBookInfo() {
-    this.$b.pureUpdateBookInfo(this.bookInfo).subscribe(() => {});
+    this.$b.pureUpdateBookInfo(this.bookInfo).subscribe(() => {
+    });
   }
 
   ngAfterViewInit() {
@@ -115,7 +124,8 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
     return result;
   }
 
-  ngDoCheck() {}
+  ngDoCheck() {
+  }
 
   /**
    * Subscribe on various events
@@ -137,11 +147,18 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
 
       Observable.fromEvent(window, 'resize')
         .debounceTime(200).subscribe(e => {
-          this.pages.next(this.parseBookContent(this.getCharWidthMap()));
-        });
+        this.pages.next(this.parseBookContent(this.getCharWidthMap()));
+      });
 
       this.currentPage.subscribe(p => {
-        if (isNullOrUndefined(p)) { return; }
+        if (isNullOrUndefined(p)) {
+          return;
+        }
+
+        if (p + 1 === this.pages.getValue().length) {
+          console.log('read')
+          this.bookInfo.Read = true;
+        }
         this.bookInfo.LastPage = p;
         this.bookInfo.LastReadWords = this.pages.getValue()
           .slice(0, p).reduce((a, b) => a + b.reduce((i, j) => i + j.split(' ').length, 0), 0) + 1;
@@ -166,22 +183,15 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
     });
   }
 
-  nextPage = () => {
-    this.updateLexicon();
-    this.currentPage.next(this.currentPage.getValue() + 1);
-  }
-
   prevPage() {
     this.currentPage.next(this.currentPage.getValue() - 1);
   }
 
-  splitWords(t: string) {
-    return t.split('');
-  }
-
   parseBookContent(charWidthMap: {}) {
     let restHeight = this.contentRef.nativeElement.clientHeight - 100;
-    if (restHeight < 1) { return [[]]; }
+    if (restHeight < 1) {
+      return [[]];
+    }
     const result = [];
     let currentPage = 0;
     let currentWord = 0;
@@ -201,7 +211,7 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
     }
     const remainingArray = this.getFlatContent(this.sections);
     for (let i = 0; i < remainingArray.length; i++) {
-    // for (let i = 0; i < 30; i++) {
+      // for (let i = 0; i < 30; i++) {
       if (restHeight - pHeight <= 0) {
         result.push(currPage);
         currPage = [];
@@ -214,8 +224,6 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
       let cutIndex = 0;
       for (let j = 0; j < w.length; j++) {
         const cw = w[j].split('').reduce((acc, curr) => acc + (charWidthMap[curr] ? charWidthMap[curr] : 8), 0) + 8;
-        if (cw === NaN) {
-        }
         if (wv - cw <= 4) {
           if (restHeight - pHeight <= 0) {
             result.push(currPage);
@@ -240,8 +248,8 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
       restHeight -= pHeight;
       currPage.push(w.slice(cutIndex).join(' '));
       if (currentWord >= this.bookInfo.LastReadWords && !pageAdded) {
-        console.log(this.bookInfo.LastReadWords)
-        console.log(result)
+        console.log(this.bookInfo.LastReadWords);
+        console.log(result);
         currentPage = result.length;
         pageAdded = true;
       }
@@ -260,7 +268,7 @@ export class ReaderComponent implements OnInit, AfterViewInit, OnDestroy, DoChec
     return result;
   }
 
-  getFlatContent(v: {P: Array<string>}[]): Array<string> {
+  getFlatContent(v: { P: Array<string> }[]): Array<string> {
     const result = [];
     for (const i of v) {
       result.push(...i.P);

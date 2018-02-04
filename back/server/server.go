@@ -15,7 +15,7 @@ var Server server
 var infoLogger = log.New(os.Stdout, "SERVER: ", log.Ltime|log.Ldate)
 
 func init() {
-	log.SetFlags(log.Lshortfile | log.Ldate)
+	log.SetFlags(log.Llongfile | log.Ldate)
 	log.SetPrefix("SERVER: ")
 	port := config.ServerPort
 	if len(port) < 1 {

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -11,26 +12,22 @@ import (
 	"../../db/models"
 	"../../reader"
 	"github.com/centrypoint/fb2"
-	mgo "gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2"
 )
 
 // GetBooksHandler handle /get/books
 func GetBooksHandler() http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		var responseStatus int
+		var err error
 		start := time.Now()
-		defer func() {
-			if responseStatus != 200 {
-				rw.WriteHeader(responseStatus)
-			}
-			infoLogger.Printf("%s %s %d %s\n", r.URL, r.Method, responseStatus, time.Since(start))
-		}()
+		defer reqLogger(&rw, &responseStatus, r.URL, r.Method, &start)
+		defer errLogger(&err)
 		if r.Method == http.MethodOptions {
 			rw.Header().Add("Access-Control-Allow-Headers", "user-id")
 			responseStatus = http.StatusNoContent
 		} else if r.Method == http.MethodGet {
 			var (
-				err      error
 				user     db.User
 				response []byte
 				result   = make(map[string]struct {
@@ -72,7 +69,6 @@ func GetBooksHandler() http.Handler {
 			}
 
 			if response, err = json.Marshal(result); err != nil {
-				log.Println(err)
 				responseStatus = 500
 				return
 			}
@@ -89,15 +85,16 @@ func GetBooksHandler() http.Handler {
 func UpdateBookInfoHandler() http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		var responseStatus int
+		var err error
 		start := time.Now()
 		defer reqLogger(&rw, &responseStatus, r.URL, r.Method, &start)
+		defer errLogger(&err)
 		if r.Method == http.MethodOptions {
 			rw.Header().Add("Access-Control-Allow-Headers", "content-type, user-id")
 			rw.Header().Add("Access-Control-Allow-Method", "POST")
 			responseStatus = http.StatusNoContent
 		} else if r.Method == http.MethodPost {
 			var (
-				err    error
 				user   db.User
 				params models.UserBook
 			)
@@ -109,7 +106,6 @@ func UpdateBookInfoHandler() http.Handler {
 			}
 
 			if err = db.GetOne(userID, &user); err != nil {
-				log.Println(err)
 				responseStatus = 500
 				return
 			}
@@ -117,7 +113,6 @@ func UpdateBookInfoHandler() http.Handler {
 			defer r.Body.Close()
 
 			if err = json.NewDecoder(r.Body).Decode(&params); err != nil {
-				log.Println(err)
 				responseStatus = 500
 				return
 			}
@@ -129,6 +124,8 @@ func UpdateBookInfoHandler() http.Handler {
 			}
 
 			newBook := user.Books[params.ID]
+
+			fmt.Printf("%+v\n", params)
 
 			if params.LastPage > 0 {
 				newBook.LastPage = params.LastPage
@@ -145,11 +142,36 @@ func UpdateBookInfoHandler() http.Handler {
 			if params.LastReadWords > 0 {
 				newBook.LastReadWords = params.LastReadWords
 			}
+			if params.Read {
+				newBook.Read = true
+				var stats db.UserStatistic
+				stats.ID = userID
+				if err = db.GetOne(userID, &stats); err != nil && err.Error() == "not found" {
+					stats.ReadBooks = map[string]string{params.ID: params.ID}
+					stats.ID = userID
+					if err = db.Insert(&stats); err != nil {
+						responseStatus = 500
+						return
+					}
+				} else if err != nil {
+					responseStatus = 500
+					return
+				}
+
+				if len(stats.ReadBooks) < 1 {
+					stats.ReadBooks = make(map[string]string)
+				}
+
+				stats.ReadBooks[params.ID] = params.ID
+				if err = db.Update(userID, &stats); err != nil {
+					responseStatus = 500
+					return
+				}
+			}
 
 			user.Books[params.ID] = newBook
 
 			if err = db.Update(userID, &user); err != nil {
-				log.Println(err)
 				responseStatus = 500
 				return
 			}

@@ -1,15 +1,18 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"time"
+
+	sLogger "../../logging-server"
 )
 
 func init() {
-	log.SetFlags(log.Lshortfile)
+	log.SetFlags(log.Llongfile)
 }
 
 var infoLogger = log.New(os.Stdout, "SERVER: ", log.Ltime|log.Ldate)
@@ -62,9 +65,14 @@ func reqLogger(rw *http.ResponseWriter, responseStatus *int, URL *url.URL, Metho
 	infoLogger.Printf("%s %s %d %s\n", Method, URL, *responseStatus, time.Since(*start))
 }
 
-// err logger, should be deffered
+// err logger, should be deferred
 func errLogger(e *error) {
-	if e != nil {
+	if err := recover(); err != nil {
+		log.Println(err)
+		sLogger.SendLog(fmt.Sprintf("%v\n", err))
+	}
+	if (*e) != nil {
 		log.Println(*e)
+		sLogger.SendLog((*e).Error())
 	}
 }
